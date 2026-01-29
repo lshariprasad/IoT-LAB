@@ -6,6 +6,7 @@
 This repository focuses on practical applications such as **automation, health monitoring, robotics, and sensor-based systems**, helping learners understand **hardware–software integration** through hands-on implementation.
 
 
+
 ---
 
 
