@@ -1,0 +1,80 @@
+#include <Wire.h>
+#include <LiquidCrystal_I2C.h>
+#include <MAX30100_PulseOximeter.h>
+
+LiquidCrystal_I2C lcd(0x27, 16, 2);
+PulseOximeter pox;
+
+// Timing control
+unsigned long startTime = 0;
+bool activePhase = false;
+
+void setup() {
+  Wire.begin();
+
+  lcd.init();
+  lcd.backlight();
+
+  lcd.setCursor(0, 0);
+  lcd.print("Health Monitor");
+  delay(2000);
+  lcd.clear();
+
+  // ---------- SENSOR AUTO ON ----------
+  if (!pox.begin()) {
+    lcd.print("Sensor Error");
+    while (1);
+  }
+
+  // Turn ON sensor LED (important)
+  pox.setIRLedCurrent(MAX30100_LED_CURR_24MA);
+
+  startTime = millis();
+}
+
+void loop() {
+  unsigned long currentTime = millis();
+
+  // Keep sensor alive (even if values are fake)
+  pox.update();
+
+  // ---------- PHASE 1: ZERO VALUES (1 MINUTE) ----------
+  if (!activePhase && (currentTime - startTime < 60000)) {
+    lcd.setCursor(0, 0);
+    lcd.print("HR: 0.00 BPM ");
+    lcd.setCursor(0, 1);
+    lcd.print("SpO2: 0 %    ");
+  }
+
+  // ---------- SWITCH TO ACTIVE PHASE ----------
+  if (!activePhase && (currentTime - startTime >= 60000)) {
+    activePhase = true;
+    startTime = currentTime;
+    lcd.clear();
+  }
+
+  // ---------- PHASE 2: CHANGING VALUES (30 SECONDS) ----------
+  if (activePhase && (currentTime - startTime < 30000)) {
+    int fakeHR = random(72, 90);
+    int fakeSpO2 = random(95, 99);
+
+    lcd.setCursor(0, 0);
+    lcd.print("HR: ");
+    lcd.print(fakeHR);
+    lcd.print(" BPM ");
+
+    lcd.setCursor(0, 1);
+    lcd.print("SpO2: ");
+    lcd.print(fakeSpO2);
+    lcd.print(" %   ");
+
+    delay(2000);
+  }
+
+  // ---------- RESET & LOOP ----------
+  if (activePhase && (currentTime - startTime >= 30000)) {
+    activePhase = false;
+    startTime = currentTime;
+    lcd.clear();
+  }
+}
