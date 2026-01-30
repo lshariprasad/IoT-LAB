@@ -1,0 +1,76 @@
+#include <Wire.h>
+#include <Adafruit_GFX.h>
+#include <Adafruit_SSD1306.h>
+
+/* OLED */
+#define SCREEN_WIDTH 128
+#define SCREEN_HEIGHT 64
+Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
+
+/* Pins */
+#define GREEN_LED 6
+#define RED_LED   7
+#define BUZZER    9
+#define RELAY_PIN 8
+
+/* Timings */
+unsigned long normalTime = 30000; // 30 sec
+unsigned long faultTime  = 10000; // 10 sec
+
+void setup() {
+  pinMode(GREEN_LED, OUTPUT);
+  pinMode(RED_LED, OUTPUT);
+  pinMode(BUZZER, OUTPUT);
+  pinMode(RELAY_PIN, OUTPUT);
+
+  digitalWrite(GREEN_LED, LOW);
+  digitalWrite(RED_LED, LOW);
+  digitalWrite(BUZZER, LOW);
+  digitalWrite(RELAY_PIN, LOW);
+
+  display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
+  display.clearDisplay();
+}
+
+void loop() {
+
+  /* ===== NORMAL (LOW CURRENT, LOW VOLTAGE) ===== */
+  digitalWrite(GREEN_LED, HIGH);
+  digitalWrite(RED_LED, LOW);
+  digitalWrite(BUZZER, LOW);
+  digitalWrite(RELAY_PIN, LOW);
+
+  display.clearDisplay();
+  display.setTextSize(1);
+  display.setTextColor(SSD1306_WHITE);
+  display.setCursor(0,0);
+
+  display.println("STATUS: NORMAL");
+  display.println("");
+  display.println("Voltage: 3.3 V");
+  display.println("Current: 0.3 A");
+  display.println("Distance: --");
+  display.display();
+
+  delay(normalTime);
+
+  /* ===== FAULT (HIGH CURRENT, HIGH VOLTAGE) ===== */
+  digitalWrite(GREEN_LED, LOW);
+  digitalWrite(RED_LED, HIGH);
+  digitalWrite(BUZZER, HIGH);
+  digitalWrite(RELAY_PIN, HIGH);
+
+  display.clearDisplay();
+  display.setCursor(0,0);
+
+  display.println("FAULT DETECTED!");
+  display.println("");
+  display.println("Voltage: 5.0 V");
+  display.println("Current: 1.2 A");
+  display.println("Distance: 2 km");
+  display.display();
+
+  delay(faultTime);
+
+  digitalWrite(BUZZER, LOW);
+}
