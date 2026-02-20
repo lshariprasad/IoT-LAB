@@ -130,7 +130,7 @@ Example output:
 ```
 Connecting...
 Connected!
-IP Address: 192.168.1.100
+IP Address: 10.23.22.198
 ```
 
 ---
@@ -140,7 +140,7 @@ IP Address: 192.168.1.100
 In browser:
 
 ```
-http://192.168.1.100
+http://10.23.22.198
 ```
 
 (Use your actual IP address)
