@@ -12,10 +12,10 @@ Designed for **Dr. Anand**, Dean of the College — this project reads a physica
 
 ## 📸 Preview
 
-<img width="260" height="800" alt="image" src="https://github.com/user-attachments/assets/0372723e-3fa8-490a-ae6f-f0b5950920d3" />
-<img width="260" height="800" alt="image" src="https://github.com/user-attachments/assets/1a812f35-e527-4a2e-9645-fae4fe4a2d09" />
-<img width="260" height="800" alt="image" src="https://github.com/user-attachments/assets/accfaaf6-8fd4-4789-9c97-190bea700d39" />
-<img width="260" height="800" alt="image" src="https://github.com/user-attachments/assets/7f842ada-9cd5-4faa-a958-d2ef294cdade" />
+<img width="240" height="790" alt="image" src="https://github.com/user-attachments/assets/0372723e-3fa8-490a-ae6f-f0b5950920d3" />
+<img width="240" height="790" alt="image" src="https://github.com/user-attachments/assets/1a812f35-e527-4a2e-9645-fae4fe4a2d09" />
+<img width="240" height="790" alt="image" src="https://github.com/user-attachments/assets/accfaaf6-8fd4-4789-9c97-190bea700d39" />
+<img width="240" height="790" alt="image" src="https://github.com/user-attachments/assets/7f842ada-9cd5-4faa-a958-d2ef294cdade" />
 
 ---
 
