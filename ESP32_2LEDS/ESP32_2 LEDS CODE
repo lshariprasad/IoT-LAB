@@ -6,6 +6,7 @@ const char* ssid = "YOUR_WIFI_NAME";
 const char* password = "YOUR_WIFI_PASSWORD";
 
 // LED pins
+
 #define LED1 26
 #define LED2 27
 
