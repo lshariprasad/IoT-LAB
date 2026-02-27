@@ -135,17 +135,24 @@ Observe LEDs, sensors, motors, or web interface (depending on project)
 5) 📦 Modular project documentation
 
 6) 🧠 AI-based smart automation features
+
 ---
 
 ## 👨‍💻 Author : 
 Name: lshariprasad
+
 Domain: IoT & Embedded Systems Engineering
+
 Focus: Real-World Hardware Projects & Automation Systems
+
 ---
 
 ## 📜 License :
+
 This project is licensed under the MIT License.
+
 You are free to use, modify, and distribute this repository.
+
 ---
 
 See the LICENSE file for more details.
