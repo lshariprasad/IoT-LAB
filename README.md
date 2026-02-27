@@ -5,6 +5,20 @@
 **IoT LAB** is a collection of real-world **IoT and embedded systems projects** built using **Arduino Uno and ESP32**.
 This repository focuses on practical applications such as **automation, health monitoring, robotics, and sensor-based systems**, helping learners understand **hardware–software integration** through hands-on implementation.
 
+---
+
+## 💻 Project Repository Details
+
+| S.No | Project Name | Description | Technologies Used | Last Updated |
+|------|--------------|------------|-------------------|--------------|
+| 1 | ESP32 - Staff Project (Switching On/Off) | IoT-based device control system to remotely switch electrical appliances ON or OFF using ESP32. | ESP32, Embedded C++, IoT | Last Week |
+| 2 | ESP32 - Voice Command | Voice-controlled automation system using ESP32 for smart device control. | ESP32, Embedded C++, Voice Integration | 2 Days Ago |
+| 3 | ESP32 - 2 LEDs | Basic ESP32 project demonstrating LED control and GPIO handling. | ESP32, Embedded C++ | Last Week |
+| 4 | ESP32 Attendance System | RFID-based smart attendance system using ESP32 for automated student/staff tracking. | ESP32, RFID, Embedded Systems | Last Month |
+| 5 | Health Monitoring System | Real-time health monitoring system measuring vital parameters using microcontroller integration. | Arduino, Embedded C++, Sensors | Last Month |
+| 6 | Plant Watering System (ESP32) | Smart irrigation system that automatically waters plants based on soil moisture levels. | ESP32, IoT, Embedded C++ | Last Month |
+| 7 | RADAR with Arduino | Ultrasonic sensor-based RADAR system for object detection and distance measurement. | Arduino, Ultrasonic Sensor, Embedded C++ | 4 Days Ago |
+| 8 | Smart Home Devices | Web-based smart home control system integrated with microcontrollers. | Arduino / ESP32, HTML, CSS, JavaScript, IoT | Last Month |
 
 
 ---
