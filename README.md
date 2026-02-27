@@ -93,7 +93,7 @@ IoT-LAB/
 git clone https://github.com/lshariprasad/IoT-LAB.git
 ```
 
-2️⃣ Open Arduino IDE
+## 2️⃣ Open Arduino IDE
 1) Connect your Arduino Uno / ESP32
 
 2) Open the desired project folder
@@ -104,14 +104,14 @@ git clone https://github.com/lshariprasad/IoT-LAB.git
 
 5) Click Upload
 
-3️⃣ Monitor Output
+## 3️⃣ Monitor Output
 6) Use Serial Monitor
 
 Observe LEDs, sensors, motors, or web interface (depending on project)
 
 --- 
 
-🎯 Learning Objectives
+## 🎯 Learning Objectives
 1) Understand IoT fundamentals
 
 2) Master sensor interfacing techniques
