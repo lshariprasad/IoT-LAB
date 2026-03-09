@@ -769,6 +769,7 @@ void handleStatus() {
   server.send(200, "text/plain", String(switchState));
 }
 
+// This Is for Void Setup Values Only
 void setup() {
   Serial.begin(115200);
 
@@ -795,3 +796,4 @@ void setup() {
 void loop() {
   server.handleClient();
 }
+
