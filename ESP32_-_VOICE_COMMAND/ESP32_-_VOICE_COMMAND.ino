@@ -12,6 +12,9 @@
 const char* ssid = "HARIDEVAN2006";
 const char* password = "HARIDEVAN@1410";
 
+
+
+
 // ---------------- OLED ---------------------------
 #define SCREEN_WIDTH 128
 #define SCREEN_HEIGHT 64
