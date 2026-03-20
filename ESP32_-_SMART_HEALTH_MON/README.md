@@ -28,7 +28,7 @@ A **buzzer alarm** triggers automatically when the mask is removed, making this 
 
 | OLED Display | Web Dashboard |
 |---|---|
-| <img width="302.5" height="292.5" alt="image" src="https://github.com/user-attachments/assets/9fa64d1f-1901-4a49-b88e-ebe870305c46" /> | <img width="400" height="190.75" alt="image" src="https://github.com/user-attachments/assets/6fa901ca-c53e-43fd-8d54-064f0f090942" /> |
+| <img width="322.5" height="302.5" alt="image" src="https://github.com/user-attachments/assets/9fa64d1f-1901-4a49-b88e-ebe870305c46" /> | <img width="500" height="290.75" alt="image" src="https://github.com/user-attachments/assets/6fa901ca-c53e-43fd-8d54-064f0f090942" /> |
 
 > *Replace with your own photos*
 
@@ -47,11 +47,12 @@ A **buzzer alarm** triggers automatically when the mask is removed, making this 
 | Breadboard | 1 |
 
 ---
-## Circuit Diagram :
-
-<img width="896" height="642" alt="image" src="https://github.com/user-attachments/assets/15365e19-137a-4d58-8aa4-e901112512f3" />
+## Circuit Diagram : (CIRCKIT)
 
 
+<img width="883" height="695" alt="image" src="https://github.com/user-attachments/assets/7530329e-097a-4bf4-8ebb-acfae77d6e45" />
+
+### Link : https://app.cirkitdesigner.com/project/11399d06-6f37-46d9-9515-a7120eaebc12
 
 ---
 
