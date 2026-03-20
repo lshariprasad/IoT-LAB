@@ -47,7 +47,7 @@ A **buzzer alarm** triggers automatically when the mask is removed, making this 
 | Breadboard | 1 |
 
 ---
-## Circuit Diagram : (CIRCKIT)
+## Circuit Diagram : (CIRKIT)
 
 
 <img width="883" height="695" alt="image" src="https://github.com/user-attachments/assets/7530329e-097a-4bf4-8ebb-acfae77d6e45" />
