@@ -1,8 +1,5 @@
 # 🏥 SmartHealth Monitor — ESP32 Patient Monitoring System
 
-![Project Banner](images/banner.jpg)
-> *Add your project photo above by placing it in an `images/` folder*
-
 ---
 
 ## 📌 About the Project
@@ -31,8 +28,7 @@ A **buzzer alarm** triggers automatically when the mask is removed, making this 
 
 | OLED Display | Web Dashboard |
 |---|---|
-| <img width="302.5" height="292.5" alt="image" src="https://github.com/user-attachments/assets/9fa64d1f-1901-4a49-b88e-ebe870305c46" /> 
-| <img width="400" height="190.75" alt="image" src="https://github.com/user-attachments/assets/6fa901ca-c53e-43fd-8d54-064f0f090942" /> |
+| <img width="302.5" height="292.5" alt="image" src="https://github.com/user-attachments/assets/9fa64d1f-1901-4a49-b88e-ebe870305c46" /> | <img width="400" height="190.75" alt="image" src="https://github.com/user-attachments/assets/6fa901ca-c53e-43fd-8d54-064f0f090942" /> |
 
 > *Replace with your own photos*
 
@@ -66,7 +62,13 @@ A **buzzer alarm** triggers automatically when the mask is removed, making this 
 
 ---
 
-##
+## Website Display :
+
+<img width="1600" height="757" alt="image" src="https://github.com/user-attachments/assets/6675df39-26ec-464e-9ea4-a47ab0f964ea" />
+
+
+<img width="1600" height="761" alt="image" src="https://github.com/user-attachments/assets/87f813f7-2780-4fac-9633-8968e45731de" />
+
 
 ---
 
