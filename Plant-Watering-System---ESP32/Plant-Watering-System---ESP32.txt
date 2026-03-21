@@ -14,7 +14,6 @@ char ssid[] = "HARIDEVAN2006";
 char pass[] = "HARIDEVAN@1410";
 
 // Pin connections
-
 #define SOIL_PIN 33
 #define RELAY_PIN 2
 #define TEMP_PIN 23
