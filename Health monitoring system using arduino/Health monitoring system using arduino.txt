@@ -9,6 +9,7 @@ PulseOximeter pox;
 unsigned long startTime = 0;
 bool activePhase = false;
 
+
 void setup() {
   Wire.begin();
 
