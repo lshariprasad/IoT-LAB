@@ -1,0 +1,388 @@
+/*
+ * ╔══════════════════════════════════════════╗
+ * ║     SIGNAL ANALYSIS SYSTEM v2.0          ║
+ * ║  Advanced State Machine + OLED Display   ║
+ * ╚══════════════════════════════════════════╝
+ */
+
+#include <Wire.h>
+#include <Adafruit_GFX.h>
+#include <Adafruit_SSD1306.h>
+
+// ─── Hardware Config ────────────────────────────────────────────────
+#define SCREEN_WIDTH   128
+#define SCREEN_HEIGHT   64
+#define OLED_RESET      -1
+#define OLED_ADDRESS  0x3C
+
+#define BTN_PIN         2
+#define GREEN_LED       6
+#define RED_LED         7
+#define BUZZER          8
+
+Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
+
+// ─── Signal State Definition ────────────────────────────────────────
+enum AlertLevel { GOOD, WARNING, CRITICAL };
+
+struct SignalState {
+  const char* label;
+  int         delayUs;
+  AlertLevel  level;
+  unsigned long durationMs;
+};
+
+const SignalState STATES[] = {
+  { "IDLE",    90,  GOOD,     15000 },
+  { "SPIKE",  180,  CRITICAL,  5000 },
+  { "NOISE",  130,  WARNING,  10000 },
+  { "BURST",  200,  CRITICAL,  2000 },
+  { "STABLE",  85,  GOOD,     15000 },
+  { "SURGE",  170,  CRITICAL,  6000 },
+  { "DRIFT",  140,  WARNING,  15000 },
+};
+const int STATE_COUNT = sizeof(STATES) / sizeof(STATES[0]);
+
+// ─── Runtime Variables ──────────────────────────────────────────────
+bool          systemOn       = false;
+int           currentState   = 0;
+unsigned long stateStartMs   = 0;
+
+// Button debounce
+bool          lastBtnRaw     = HIGH;
+bool          btnState       = HIGH;
+unsigned long lastDebounceMs = 0;
+unsigned long btnPressStart  = 0;
+bool          btnHeld        = false;
+#define DEBOUNCE_MS   40
+#define HOLD_RESET_MS 2000
+
+// Non-blocking blink/pulse
+unsigned long lastBlinkMs    = 0;
+bool          blinkOn        = false;
+#define BLINK_FAST_MS  200
+#define BLINK_SLOW_MS  600
+
+// Non-blocking buzzer pattern
+unsigned long lastBuzzMs     = 0;
+bool          buzzActive     = false;
+int           buzzCycle      = 0;
+
+// Scrolling waveform ticker
+unsigned long lastTickMs     = 0;
+int           tickOffset     = 0;
+#define TICK_INTERVAL_MS 120
+
+// ─── Helpers ────────────────────────────────────────────────────────
+
+const char* levelStr(AlertLevel lvl) {
+  switch (lvl) {
+    case GOOD:     return "GOOD";
+    case WARNING:  return "WARNING";
+    case CRITICAL: return "CRITICAL";
+    default:       return "UNKNOWN";
+  }
+}
+
+void drawProgressBar(int x, int y, int w, int h, int percent) {
+  percent = constrain(percent, 0, 100);
+  int fill = map(percent, 0, 100, 0, w - 2);
+  display.drawRoundRect(x, y, w, h, 2, WHITE);
+  if (fill > 0) display.fillRect(x + 1, y + 1, fill, h - 2, WHITE);
+}
+
+void drawIcon(int x, int y, AlertLevel lvl) {
+  if (lvl == GOOD) {
+    display.drawPixel(x,   y+2, WHITE);
+    display.drawPixel(x+1, y+3, WHITE);
+    display.drawPixel(x+2, y+1, WHITE);
+    display.drawPixel(x+3, y+0, WHITE);
+  } else if (lvl == WARNING) {
+    display.drawPixel(x+2, y+0, WHITE);
+    display.drawPixel(x+1, y+1, WHITE);
+    display.drawPixel(x+3, y+1, WHITE);
+    display.drawPixel(x+0, y+2, WHITE);
+    display.drawPixel(x+4, y+2, WHITE);
+    display.drawPixel(x+2, y+2, WHITE);
+    for (int i = 0; i < 5; i++) display.drawPixel(x+i, y+3, WHITE);
+  } else {
+    display.drawPixel(x+0, y+0, WHITE);
+    display.drawPixel(x+1, y+1, WHITE);
+    display.drawPixel(x+2, y+2, WHITE);
+    display.drawPixel(x+3, y+1, WHITE);
+    display.drawPixel(x+4, y+0, WHITE);
+    display.drawPixel(x+0, y+2, WHITE);
+    display.drawPixel(x+4, y+2, WHITE);
+  }
+}
+
+void drawSeparator(int y) {
+  display.drawFastHLine(0, y, SCREEN_WIDTH, WHITE);
+}
+
+// ─── Display Screens ────────────────────────────────────────────────
+
+void drawBootScreen() {
+  display.clearDisplay();
+  display.setTextSize(1);
+  display.setTextColor(WHITE);
+  display.drawRect(0, 0, 128, 64, WHITE);
+  display.drawRect(2, 2, 124, 60, WHITE);
+  display.setCursor(22, 12);
+  display.println("SIGNAL ANALYSIS");
+  display.setCursor(42, 26);
+  display.println("SYSTEM v2.0");
+  display.setCursor(18, 42);
+  display.println("Press BTN to start");
+  display.display();
+}
+
+void drawOffScreen() {
+  display.clearDisplay();
+  for (int x = 0; x < 128; x += 6) {
+    display.drawFastHLine(x, 0,  3, WHITE);
+    display.drawFastHLine(x, 63, 3, WHITE);
+  }
+  for (int y = 0; y < 64; y += 6) {
+    display.drawFastVLine(0,   y, 3, WHITE);
+    display.drawFastVLine(127, y, 3, WHITE);
+  }
+  display.setTextSize(2);
+  display.setCursor(22, 20);
+  display.println("OFFLINE");
+  display.setTextSize(1);
+  display.setCursor(20, 50);
+  display.println("Hold BTN to reset");
+  display.display();
+}
+
+void drawMainScreen(unsigned long now) {
+  const SignalState& s = STATES[currentState];
+  unsigned long elapsed = now - stateStartMs;
+  int remaining   = (int)((s.durationMs - elapsed) / 1000) + 1;
+  int progressPct = (int)(elapsed * 100UL / s.durationMs);
+
+  display.clearDisplay();
+
+  // ── State dots (top left) ──────────────────────────────
+  for (int i = 0; i < STATE_COUNT; i++) {
+    int dotX = 2 + i * 9;
+    if (i == currentState)
+      display.fillCircle(dotX, 3, 2, WHITE);
+    else
+      display.drawCircle(dotX, 3, 2, WHITE);
+  }
+
+  // ── Countdown timer (top right) ───────────────────────
+  display.setTextSize(1);
+  display.setCursor(90, 0);
+  display.print(remaining);
+  display.println("s");
+
+  drawSeparator(8);
+
+  // ── Large state label (blinks on CRITICAL) ────────────
+  bool showLabel = true;
+  if (s.level == CRITICAL && !blinkOn) showLabel = false;
+  if (showLabel) {
+    display.setTextSize(2);
+    display.setCursor(0, 12);
+    display.print(s.label);
+  }
+
+  // ── Delay value (top right) ───────────────────────────
+  display.setTextSize(1);
+  display.setCursor(80, 14);
+  display.print(s.delayUs);
+  display.println("us");
+
+  drawSeparator(30);
+
+  // ── Icon + Status badge ───────────────────────────────
+  drawIcon(2, 34, s.level);
+
+  display.setTextSize(1);
+  if (s.level == CRITICAL && blinkOn) {
+    int sw = strlen(levelStr(s.level)) * 6 + 2;
+    display.fillRect(11, 32, sw, 10, WHITE);
+    display.setTextColor(BLACK);
+    display.setCursor(12, 34);
+    display.print(levelStr(s.level));
+    display.setTextColor(WHITE);
+  } else {
+    display.setCursor(12, 34);
+    display.print(levelStr(s.level));
+  }
+
+  // ── Range label (right) ───────────────────────────────
+  const char* rangeTxt = (s.delayUs < 100) ? "LOW" :
+                         (s.delayUs < 160) ? "MED" : "HIGH";
+  display.setCursor(80, 34);
+  display.print("RNG:");
+  display.println(rangeTxt);
+
+  drawSeparator(46);
+
+  // ── Animated sine waveform ────────────────────────────
+  for (int x = 0; x < 128; x += 3) {
+    int wave = 55 + (int)(3.0 * sin((x + tickOffset) * 0.25));
+    if (s.level == CRITICAL)
+      wave += (int)(2.0 * sin((x + tickOffset) * 0.6));
+    display.drawPixel(x, constrain(wave, 48, 62), WHITE);
+  }
+
+  // ── Progress bar (bottom) ─────────────────────────────
+  drawProgressBar(0, 61, 128, 3, progressPct);
+
+  display.display();
+}
+
+// ─── Output Control ─────────────────────────────────────────────────
+
+void updateOutputs(unsigned long now) {
+  if (!systemOn) {
+    digitalWrite(GREEN_LED, LOW);
+    digitalWrite(RED_LED,   LOW);
+    noTone(BUZZER);
+    return;
+  }
+
+  const SignalState& s = STATES[currentState];
+
+  switch (s.level) {
+    case GOOD:
+      digitalWrite(GREEN_LED, HIGH);
+      digitalWrite(RED_LED,   LOW);
+      noTone(BUZZER);
+      break;
+
+    case WARNING:
+      digitalWrite(GREEN_LED, blinkOn ? HIGH : LOW);
+      digitalWrite(RED_LED,   LOW);
+      if (now - lastBuzzMs > 2000) {
+        tone(BUZZER, 1000, 80);
+        lastBuzzMs = now;
+      }
+      break;
+
+    case CRITICAL:
+      digitalWrite(GREEN_LED, LOW);
+      digitalWrite(RED_LED,   blinkOn ? HIGH : LOW);
+      if (!buzzActive && now - lastBuzzMs > 600) {
+        buzzActive = true;
+        buzzCycle  = 0;
+        lastBuzzMs = now;
+      }
+      if (buzzActive) {
+        unsigned long since = now - lastBuzzMs;
+        if (buzzCycle == 0 && since < 80)        tone(BUZZER, 2200, 80);
+        else if (buzzCycle == 0 && since >= 80)  { buzzCycle = 1; lastBuzzMs = now; }
+        else if (buzzCycle == 1 && since < 80)   tone(BUZZER, 2600, 80);
+        else if (buzzCycle == 1 && since >= 80)  { buzzCycle = 0; buzzActive = false; lastBuzzMs = now; }
+      }
+      break;
+  }
+}
+
+// ─── Button Handling ────────────────────────────────────────────────
+
+void handleButton(unsigned long now) {
+  bool rawBtn = digitalRead(BTN_PIN);
+
+  if (rawBtn != lastBtnRaw) lastDebounceMs = now;
+  lastBtnRaw = rawBtn;
+  if (now - lastDebounceMs < DEBOUNCE_MS) return;
+
+  bool prevState = btnState;
+  btnState = rawBtn;
+
+  if (prevState == HIGH && btnState == LOW) {
+    btnPressStart = now;
+    btnHeld       = false;
+  }
+
+  if (btnState == LOW && !btnHeld) {
+    if (now - btnPressStart >= HOLD_RESET_MS) {
+      btnHeld      = true;
+      currentState = 0;
+      stateStartMs = now;
+      Serial.println(F("[BTN] Hold reset -> State 0"));
+    }
+  }
+
+  if (prevState == LOW && btnState == HIGH) {
+    if (!btnHeld) {
+      systemOn     = !systemOn;
+      stateStartMs = now;
+      Serial.print(F("[BTN] Toggle -> "));
+      Serial.println(systemOn ? "ON" : "OFF");
+    }
+  }
+}
+
+// ─── Setup & Loop ───────────────────────────────────────────────────
+
+void setup() {
+  Serial.begin(115200);
+  Serial.println(F("=== Signal Analysis v2.0 ==="));
+
+  pinMode(BTN_PIN,   INPUT_PULLUP);
+  pinMode(GREEN_LED, OUTPUT);
+  pinMode(RED_LED,   OUTPUT);
+  pinMode(BUZZER,    OUTPUT);
+
+  if (!display.begin(SSD1306_SWITCHCAPVCC, OLED_ADDRESS)) {
+    Serial.println(F("[ERR] OLED init failed"));
+    while (true);
+  }
+
+  display.clearDisplay();
+  display.setTextColor(WHITE);
+  drawBootScreen();
+
+  Serial.println(F("[OK] OLED ready"));
+  Serial.println(F("[OK] Waiting for button press..."));
+}
+
+void loop() {
+  unsigned long now = millis();
+
+  handleButton(now);
+
+  // Blink timer
+  unsigned long blinkInterval = (STATES[currentState].level == CRITICAL)
+                                  ? BLINK_FAST_MS : BLINK_SLOW_MS;
+  if (now - lastBlinkMs >= blinkInterval) {
+    blinkOn     = !blinkOn;
+    lastBlinkMs  = now;
+  }
+
+  // Waveform scroll ticker
+  if (now - lastTickMs >= TICK_INTERVAL_MS) {
+    tickOffset++;
+    lastTickMs = now;
+  }
+
+  if (!systemOn) {
+    drawOffScreen();
+    digitalWrite(GREEN_LED, LOW);
+    digitalWrite(RED_LED,   LOW);
+    noTone(BUZZER);
+    return;
+  }
+
+  drawMainScreen(now);
+  updateOutputs(now);
+
+  // Advance state when duration expires
+  if (now - stateStartMs >= STATES[currentState].durationMs) {
+    int prev     = currentState;
+    currentState = (currentState + 1) % STATE_COUNT;
+    stateStartMs = now;
+    buzzActive   = false;
+    Serial.print(F("[STATE] "));
+    Serial.print(prev);
+    Serial.print(F(" -> "));
+    Serial.println(currentState);
+  }
+}
