@@ -81,7 +81,6 @@ The robot operates fully standalone — no wireless connectivity, no external co
   L298N Driver         Servo Head         Serial Monitor
   (4 DC Motors)       (Direction Pan)      (Debug 9600)
 ```
-
 ---
 
 ## 🛠 Hardware Components
@@ -103,6 +102,124 @@ The robot operates fully standalone — no wireless connectivity, no external co
 ---
 
 ## 🔌 Circuit & Pin Mapping
+
+========================================
+🤖 HUMAN FOLLOWING ROBOT PIN DIAGRAM
+========================================
+
+
+                +-------------------+
+                |   Arduino UNO     |
+                |                   |
+                | D2  <-- Left IR   |
+                | D3  <-- Right IR  |
+                | D4  --> L298N IN1 |
+                | D5  --> L298N IN2 |
+                | D6  --> Servo     |
+                | D7  --> L298N IN3 |
+                | D8  --> L298N IN4 |
+                | D9  --> TRIG      |
+                | D10 <-- ECHO      |
+                | 5V  --> Sensors   |
+                | GND --> Common GND|
+                +-------------------+
+
+
+
+========================================
+📡 ULTRASONIC SENSOR (HC-SR04)
+========================================
+
+        HC-SR04              Arduino UNO
+      -----------------------------------
+        VCC      --------->     5V
+        GND      --------->     GND
+        TRIG     --------->     D9
+        ECHO     --------->     D10
+
+
+
+========================================
+📍 IR SENSOR CONNECTIONS
+========================================
+
+        LEFT IR SENSOR       Arduino UNO
+      -----------------------------------
+        VCC      --------->     5V
+        GND      --------->     GND
+        OUT      --------->     D2
+
+
+        RIGHT IR SENSOR      Arduino UNO
+      -----------------------------------
+        VCC      --------->     5V
+        GND      --------->     GND
+        OUT      --------->     D3
+
+
+
+========================================
+⚙️ SERVO MOTOR CONNECTION
+========================================
+
+        SERVO MOTOR          Arduino UNO
+      -----------------------------------
+        Red       --------->     5V
+        Brown     --------->     GND
+        Orange    --------->     D6
+
+
+
+========================================
+🚗 L298N MOTOR DRIVER CONNECTION
+========================================
+
+        L298N                Arduino UNO
+      -----------------------------------
+        IN1      --------->     D4
+        IN2      --------->     D5
+        IN3      --------->     D7
+        IN4      --------->     D8
+        GND      --------->     GND
+
+
+
+========================================
+🔋 BATTERY CONNECTION
+========================================
+
+        BATTERY              L298N
+      -----------------------------------
+        Positive  --------->   12V
+        Negative  --------->   GND
+
+
+
+========================================
+🛞 MOTOR CONNECTIONS
+========================================
+
+        LEFT MOTORS          L298N
+      -----------------------------------
+        Motor Pair --------> OUT1 & OUT2
+
+
+        RIGHT MOTORS         L298N
+      -----------------------------------
+        Motor Pair --------> OUT3 & OUT4
+
+
+
+========================================
+⚠️ IMPORTANT NOTES
+========================================
+
+✅ Connect ALL GNDs together
+✅ Disconnect sensors during upload if needed
+✅ Do NOT use Arduino pins 0 and 1
+✅ Servo may require separate power
+✅ Use lithium batteries for motors
+
 
 ### Arduino UNO ↔ All Components
 
@@ -128,25 +245,25 @@ The robot operates fully standalone — no wireless connectivity, no external co
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│                    Power Distribution                    │
-│                                                          │
-│  Lithium Pack (7.4V–12V)                                 │
-│       │                                                  │
+│                    Power Distribution                   │
+│                                                         │
+│  Lithium Pack (7.4V–12V)                                │
+│       │                                                 │
 │       ├──► L298N 12V IN ──► DC Motors (via H-Bridge)    │
-│       │         │                                        │
-│       │    L298N 5V OUT ──► (Optional: Arduino Vin)      │
-│       │                                                  │
-│  9V Battery / USB Power Bank                             │
-│       │                                                  │
+│       │         │                                       │
+│       │    L298N 5V OUT ──► (Optional: Arduino Vin)     │
+│       │                                                 │
+│  9V Battery / USB Power Bank                            │
+│       │                                                 │
 │       └──► Arduino UNO 5V/Vin                           │
-│                   │                                      │
-│               Arduino 5V Rail                            │
-│                   │                                      │
+│                   │                                     │
+│               Arduino 5V Rail                           │
+│                   │                                     │
 │       ├──► IR Sensor VCC (×2)                           │
-│       ├──► HC-SR04 VCC                                   │
+│       ├──► HC-SR04 VCC                                  │
 │       └──► SG90 Servo VCC                               │
-│                                                          │
-│  ⚠ Common GND must tie ALL components together           │
+│                                                         │
+│  ⚠ Common GND must tie ALL components together          │
 └─────────────────────────────────────────────────────────┘
 ```
 
