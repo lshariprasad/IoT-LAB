@@ -1,0 +1,297 @@
+<svg viewBox="0 0 1100 720" xmlns="http://www.w3.org/2000/svg" style="font-family:'Courier New',monospace;">
+  <defs>
+    <pattern id="dots" width="25" height="25" patternUnits="userSpaceOnUse">
+      <circle cx="1" cy="1" r="0.8" fill="#1a2e1a"/>
+    </pattern>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="2" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <!-- Arrow marker -->
+    <marker id="arrow" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto">
+      <path d="M0,0 L6,3 L0,6 Z" fill="#555"/>
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1100" height="720" fill="#0a180a"/>
+  <rect width="1100" height="720" fill="url(#dots)"/>
+
+  <!-- Title Bar -->
+  <rect x="0" y="0" width="1100" height="52" fill="#0f2a0f"/>
+  <rect x="0" y="50" width="1100" height="2" fill="#00cc44" opacity="0.6"/>
+  <text x="550" y="22" text-anchor="middle" fill="#00ff66" font-size="15" font-weight="bold" filter="url(#glow)">⚡ SMART KITCHEN SAFETY SYSTEM — CIRCUIT DIAGRAM</text>
+  <text x="550" y="40" text-anchor="middle" fill="#448844" font-size="10">ESP32  ·  L298N  ·  MQ-2  ·  Flame Sensor  ·  DHT11  ·  SSD1306 OLED  ·  12V DC Motor  ·  Exhaust Fan</text>
+
+  <!-- ════════════════════════════════════════════════════════
+       ESP32 — CENTER
+       ════════════════════════════════════════════════════════ -->
+  <rect x="410" y="160" width="148" height="310" rx="7" fill="#0e2540" stroke="#3a88cc" stroke-width="2.5"/>
+  <rect x="410" y="160" width="148" height="24" rx="7" fill="#1a3a5c"/>
+  <text x="484" y="177" text-anchor="middle" fill="#88ccff" font-size="11" font-weight="bold">ESP32</text>
+  <text x="484" y="195" text-anchor="middle" fill="#5599bb" font-size="8.5">DevKit V1</text>
+
+  <!-- ESP32 chip visual -->
+  <rect x="438" y="200" width="90" height="60" rx="3" fill="#0a1a2a" stroke="#2a5a8a" stroke-width="1"/>
+  <text x="483" y="225" text-anchor="middle" fill="#2a6aaa" font-size="8">╔══╗</text>
+  <text x="483" y="237" text-anchor="middle" fill="#2a6aaa" font-size="8">╚══╝</text>
+  <text x="483" y="248" text-anchor="middle" fill="#336688" font-size="7">Xtensa LX6</text>
+
+  <!-- Left pin labels inside ESP32 -->
+  <text x="418" y="292" fill="#5588aa" font-size="7.5">3.3V ─┤</text>
+  <text x="418" y="315" fill="#5588aa" font-size="7.5"> GND ─┤</text>
+  <text x="418" y="340" fill="#5588aa" font-size="7.5"> G25 ─┤</text>
+  <text x="418" y="363" fill="#5588aa" font-size="7.5"> G34 ─┤</text>
+  <text x="418" y="386" fill="#5588aa" font-size="7.5">  G4 ─┤</text>
+  <text x="418" y="416" fill="#5588aa" font-size="7.5"> GND ─┤</text>
+  <text x="418" y="440" fill="#5588aa" font-size="7.5">  5V ─┤</text>
+
+  <!-- Right pin labels inside ESP32 -->
+  <text x="497" y="292" fill="#5588aa" font-size="7.5">├─ G21</text>
+  <text x="497" y="315" fill="#5588aa" font-size="7.5">├─ G22</text>
+  <text x="497" y="340" fill="#5588aa" font-size="7.5">├─ G26</text>
+  <text x="497" y="363" fill="#5588aa" font-size="7.5">├─ G27</text>
+  <text x="497" y="386" fill="#5588aa" font-size="7.5">├─ G32</text>
+  <text x="497" y="416" fill="#5588aa" font-size="7.5">├─ G33</text>
+
+  <!-- Left pin stubs -->
+  <line x1="370" y1="287" x2="410" y2="287" stroke="#ff5555" stroke-width="2"/>   <!-- 3.3V -->
+  <line x1="370" y1="310" x2="410" y2="310" stroke="#777" stroke-width="2"/>      <!-- GND -->
+  <line x1="370" y1="335" x2="410" y2="335" stroke="#ff9900" stroke-width="2"/>   <!-- G25 -->
+  <line x1="370" y1="358" x2="410" y2="358" stroke="#ff9900" stroke-width="2"/>   <!-- G34 -->
+  <line x1="370" y1="381" x2="410" y2="381" stroke="#00dd66" stroke-width="2"/>   <!-- G4 -->
+  <line x1="370" y1="411" x2="410" y2="411" stroke="#777" stroke-width="2"/>      <!-- GND_L -->
+  <line x1="370" y1="435" x2="410" y2="435" stroke="#ff2222" stroke-width="2"/>   <!-- 5V -->
+
+  <!-- Right pin stubs -->
+  <line x1="558" y1="287" x2="590" y2="287" stroke="#ffff00" stroke-width="2"/>   <!-- G21 SDA -->
+  <line x1="558" y1="310" x2="590" y2="310" stroke="#ffff00" stroke-width="2"/>   <!-- G22 SCL -->
+  <line x1="558" y1="335" x2="590" y2="335" stroke="#00aaff" stroke-width="2"/>   <!-- G26 IN1 -->
+  <line x1="558" y1="358" x2="590" y2="358" stroke="#00aaff" stroke-width="2"/>   <!-- G27 IN2 -->
+  <line x1="558" y1="381" x2="590" y2="381" stroke="#00ffbb" stroke-width="2"/>   <!-- G32 IN3 -->
+  <line x1="558" y1="411" x2="590" y2="411" stroke="#00ffbb" stroke-width="2"/>   <!-- G33 IN4 -->
+
+  <!-- ════════════════════════════════════════════════════════
+       DHT11 — TOP LEFT
+       ════════════════════════════════════════════════════════ -->
+  <rect x="55" y="72" width="120" height="90" rx="6" fill="#1e0e3e" stroke="#aa55ff" stroke-width="2"/>
+  <rect x="55" y="72" width="120" height="22" rx="6" fill="#2a1450"/>
+  <text x="115" y="87" text-anchor="middle" fill="#cc88ff" font-size="11" font-weight="bold">DHT11</text>
+  <text x="115" y="105" text-anchor="middle" fill="#7744aa" font-size="8.5">Temp &amp; Humidity</text>
+  <text x="63" y="121" fill="#ff8888" font-size="8">VCC → 3.3V</text>
+  <text x="63" y="133" fill="#999" font-size="8">GND → GND</text>
+  <text x="63" y="145" fill="#88ffaa" font-size="8">DATA → GPIO4</text>
+  <!-- pin dot -->
+  <circle cx="175" cy="117" r="3" fill="#ff5555"/>
+  <circle cx="175" cy="130" r="3" fill="#777"/>
+  <circle cx="175" cy="143" r="3" fill="#00dd66"/>
+
+  <!-- DHT11 VCC line → 3.3V bus → ESP32 pin -->
+  <polyline points="175,117 210,117 210,287 370,287" fill="none" stroke="#ff5555" stroke-width="1.5" stroke-dasharray="5,3"/>
+  <!-- DHT11 GND → GND bus -->
+  <polyline points="175,130 215,130 215,310 370,310" fill="none" stroke="#777" stroke-width="1.5" stroke-dasharray="5,3"/>
+  <!-- DHT11 DATA → GPIO4 -->
+  <polyline points="175,143 240,143 240,381 370,381" fill="none" stroke="#00dd66" stroke-width="2"/>
+
+  <!-- ════════════════════════════════════════════════════════
+       FLAME SENSOR — MID LEFT
+       ════════════════════════════════════════════════════════ -->
+  <rect x="55" y="230" width="120" height="90" rx="6" fill="#2a0e0e" stroke="#ff4444" stroke-width="2"/>
+  <rect x="55" y="230" width="120" height="22" rx="6" fill="#3a1010"/>
+  <text x="115" y="246" text-anchor="middle" fill="#ff8888" font-size="11" font-weight="bold">🔥 Flame Sensor</text>
+  <text x="115" y="264" text-anchor="middle" fill="#aa5555" font-size="8.5">Digital Output</text>
+  <text x="63" y="279" fill="#ff8888" font-size="8">VCC → 3.3V</text>
+  <text x="63" y="291" fill="#999" font-size="8">GND → GND</text>
+  <text x="63" y="303" fill="#ffaa44" font-size="8">DO  → GPIO25</text>
+  <!-- pin dots -->
+  <circle cx="175" cy="275" r="3" fill="#ff5555"/>
+  <circle cx="175" cy="288" r="3" fill="#777"/>
+  <circle cx="175" cy="301" r="3" fill="#ff9900"/>
+
+  <!-- Flame VCC → 3.3V bus (already at x=210) -->
+  <polyline points="175,275 210,275" fill="none" stroke="#ff5555" stroke-width="1.5" stroke-dasharray="5,3"/>
+  <!-- Flame GND → GND bus (already at x=215) -->
+  <polyline points="175,288 215,288" fill="none" stroke="#777" stroke-width="1.5" stroke-dasharray="5,3"/>
+  <!-- Flame DO → GPIO25 -->
+  <polyline points="175,301 250,301 250,335 370,335" fill="none" stroke="#ff9900" stroke-width="2"/>
+
+  <!-- ════════════════════════════════════════════════════════
+       MQ-2 GAS SENSOR — BOTTOM LEFT
+       ════════════════════════════════════════════════════════ -->
+  <rect x="55" y="395" width="120" height="90" rx="6" fill="#0e2a0e" stroke="#88ff44" stroke-width="2"/>
+  <rect x="55" y="395" width="120" height="22" rx="6" fill="#143a14"/>
+  <text x="115" y="411" text-anchor="middle" fill="#aaff66" font-size="11" font-weight="bold">💨 MQ-2 Gas</text>
+  <text x="115" y="429" text-anchor="middle" fill="#55aa22" font-size="8.5">LPG / Smoke</text>
+  <text x="63" y="444" fill="#ff4444" font-size="8">VCC → 5V</text>
+  <text x="63" y="456" fill="#999" font-size="8">GND → GND</text>
+  <text x="63" y="468" fill="#ffaa44" font-size="8">DO  → GPIO34</text>
+  <!-- pin dots -->
+  <circle cx="175" cy="440" r="3" fill="#ff2222"/>
+  <circle cx="175" cy="453" r="3" fill="#777"/>
+  <circle cx="175" cy="466" r="3" fill="#ff9900"/>
+
+  <!-- MQ2 5V → 5V bus from ESP32 -->
+  <polyline points="175,440 220,440 220,435 370,435" fill="none" stroke="#ff2222" stroke-width="1.5" stroke-dasharray="5,3"/>
+  <!-- MQ2 GND → GND bus -->
+  <polyline points="175,453 215,453" fill="none" stroke="#777" stroke-width="1.5" stroke-dasharray="5,3"/>
+  <!-- MQ2 DO → GPIO34 -->
+  <polyline points="175,466 255,466 255,358 370,358" fill="none" stroke="#ff9900" stroke-width="2"/>
+
+  <!-- Power bus vertical lines -->
+  <line x1="210" y1="117" x2="210" y2="287" stroke="#ff5555" stroke-width="1" stroke-dasharray="3,3" opacity="0.5"/>
+  <line x1="215" y1="130" x2="215" y2="453" stroke="#777" stroke-width="1" stroke-dasharray="3,3" opacity="0.5"/>
+  <line x1="220" y1="435" x2="220" y2="440" stroke="#ff2222" stroke-width="1" opacity="0.5"/>
+
+  <!-- ════════════════════════════════════════════════════════
+       OLED SSD1306 — TOP RIGHT
+       ════════════════════════════════════════════════════════ -->
+  <rect x="680" y="65" width="145" height="95" rx="6" fill="#0e0e2a" stroke="#4455ff" stroke-width="2"/>
+  <rect x="680" y="65" width="145" height="22" rx="6" fill="#141440"/>
+  <text x="752" y="81" text-anchor="middle" fill="#8888ff" font-size="11" font-weight="bold">SSD1306 OLED</text>
+  <!-- OLED screen visual -->
+  <rect x="695" y="92" width="115" height="35" rx="2" fill="#111130" stroke="#2233aa" stroke-width="1"/>
+  <text x="752" y="106" text-anchor="middle" fill="#4466ff" font-size="7">SMART SAFETY SYS</text>
+  <text x="752" y="117" text-anchor="middle" fill="#2244aa" font-size="6">Temp: 32°C  Hum: 65%</text>
+  <text x="688" y="142" fill="#ff8888" font-size="8">VCC→3.3V  GND→GND</text>
+  <text x="688" y="154" fill="#ffff88" font-size="8">SDA→G21   SCL→G22   Addr:0x3C</text>
+  <!-- pin dots -->
+  <circle cx="680" cy="120" r="3" fill="#ffff00"/>
+  <circle cx="680" cy="132" r="3" fill="#ffff00"/>
+
+  <!-- OLED SDA → ESP32 G21 -->
+  <polyline points="680,120 635,120 635,287 590,287" fill="none" stroke="#ffff00" stroke-width="2"/>
+  <!-- OLED SCL → ESP32 G22 -->
+  <polyline points="680,132 640,132 640,310 590,310" fill="none" stroke="#ffff00" stroke-width="2" stroke-dasharray="6,2"/>
+
+  <!-- ════════════════════════════════════════════════════════
+       L298N MOTOR DRIVER — RIGHT
+       ════════════════════════════════════════════════════════ -->
+  <rect x="680" y="225" width="155" height="210" rx="6" fill="#1e1e0a" stroke="#cccc00" stroke-width="2"/>
+  <rect x="680" y="225" width="155" height="22" rx="6" fill="#2a2a10"/>
+  <text x="757" y="241" text-anchor="middle" fill="#ffff44" font-size="11" font-weight="bold">L298N Motor Driver</text>
+
+  <!-- Input section -->
+  <rect x="688" y="252" width="65" height="80" rx="3" fill="#111100" stroke="#555500" stroke-width="1"/>
+  <text x="720" y="265" text-anchor="middle" fill="#aaaa44" font-size="7.5" font-weight="bold">INPUTS</text>
+  <text x="696" y="279" fill="#88ccff" font-size="8">IN1 ← G26</text>
+  <text x="696" y="292" fill="#88ccff" font-size="8">IN2 ← G27</text>
+  <text x="696" y="305" fill="#88ffcc" font-size="8">IN3 ← G32</text>
+  <text x="696" y="318" fill="#88ffcc" font-size="8">IN4 ← G33</text>
+  <!-- Output section -->
+  <rect x="762" y="252" width="65" height="80" rx="3" fill="#111100" stroke="#555500" stroke-width="1"/>
+  <text x="794" y="265" text-anchor="middle" fill="#aaaa44" font-size="7.5" font-weight="bold">OUTPUTS</text>
+  <text x="770" y="279" fill="#88ccff" font-size="8">OUT1 ┐</text>
+  <text x="770" y="292" fill="#88ccff" font-size="8">OUT2 ┘ Motor</text>
+  <text x="770" y="305" fill="#88ffcc" font-size="8">OUT3 ┐</text>
+  <text x="770" y="318" fill="#88ffcc" font-size="8">OUT4 ┘ Fan</text>
+  <!-- Power section -->
+  <rect x="688" y="340" width="139" height="55" rx="3" fill="#111100" stroke="#aa4400" stroke-width="1"/>
+  <text x="757" y="354" text-anchor="middle" fill="#ff8844" font-size="7.5" font-weight="bold">POWER</text>
+  <text x="696" y="368" fill="#ff6644" font-size="8">12V (+) ← Adapter (+)</text>
+  <text x="696" y="381" fill="#999" font-size="8">GND   ← Adapter (−) + ESP32 GND</text>
+  <text x="696" y="395" fill="#ffff66" font-size="7.5">⚠ Common GND is critical!</text>
+  <!-- pin dots on left -->
+  <circle cx="680" cy="280" r="3" fill="#00aaff"/>
+  <circle cx="680" cy="293" r="3" fill="#00aaff"/>
+  <circle cx="680" cy="306" r="3" fill="#00ffbb"/>
+  <circle cx="680" cy="319" r="3" fill="#00ffbb"/>
+
+  <!-- Motor driver IN1/IN2 from ESP32 -->
+  <polyline points="590,335 625,335 625,280 680,280" fill="none" stroke="#00aaff" stroke-width="2"/>
+  <polyline points="590,358 630,358 630,293 680,293" fill="none" stroke="#00aaff" stroke-width="2" stroke-dasharray="5,2"/>
+  <!-- Motor driver IN3/IN4 from ESP32 -->
+  <polyline points="590,381 620,381 620,306 680,306" fill="none" stroke="#00ffbb" stroke-width="2"/>
+  <polyline points="590,411 615,411 615,319 680,319" fill="none" stroke="#00ffbb" stroke-width="2" stroke-dasharray="5,2"/>
+
+  <!-- ════════════════════════════════════════════════════════
+       DC MOTOR — FAR RIGHT TOP
+       ════════════════════════════════════════════════════════ -->
+  <rect x="888" y="220" width="110" height="68" rx="6" fill="#0a1a2e" stroke="#0088ff" stroke-width="2"/>
+  <rect x="888" y="220" width="110" height="20" rx="6" fill="#0e2040"/>
+  <text x="943" y="234" text-anchor="middle" fill="#44aaff" font-size="11" font-weight="bold">DC Motor</text>
+  <!-- Motor symbol -->
+  <circle cx="943" cy="263" r="14" fill="none" stroke="#0066cc" stroke-width="1.5"/>
+  <text x="943" y="268" text-anchor="middle" fill="#2266aa" font-size="12" font-weight="bold">M</text>
+  <text x="900" y="281" fill="#6699cc" font-size="7.5">12V  OUT1/OUT2</text>
+  <!-- pin -->
+  <circle cx="888" cy="260" r="3" fill="#0088ff"/>
+
+  <!-- Motor ← L298N OUT1/OUT2 -->
+  <polyline points="835,270 860,270 860,260 888,260" fill="none" stroke="#0088ff" stroke-width="2.5"/>
+  <!-- OUT dot on L298N right -->
+  <circle cx="835" cy="270" r="3" fill="#0088ff"/>
+
+  <!-- ════════════════════════════════════════════════════════
+       EXHAUST FAN — FAR RIGHT BOTTOM
+       ════════════════════════════════════════════════════════ -->
+  <rect x="888" y="360" width="110" height="68" rx="6" fill="#0a2e1a" stroke="#00aa44" stroke-width="2"/>
+  <rect x="888" y="360" width="110" height="20" rx="6" fill="#0e401a"/>
+  <text x="943" y="374" text-anchor="middle" fill="#44ff88" font-size="11" font-weight="bold">Exhaust Fan</text>
+  <!-- Fan symbol -->
+  <circle cx="943" cy="402" r="14" fill="none" stroke="#007733" stroke-width="1.5"/>
+  <text x="943" y="407" text-anchor="middle" fill="#226644" font-size="14">⌁</text>
+  <text x="900" y="420" fill="#44aa66" font-size="7.5">12V  OUT3/OUT4</text>
+  <!-- pin -->
+  <circle cx="888" cy="400" r="3" fill="#00aa44"/>
+
+  <!-- Fan ← L298N OUT3/OUT4 -->
+  <polyline points="835,310 870,310 870,400 888,400" fill="none" stroke="#00aa44" stroke-width="2.5"/>
+  <circle cx="835" cy="310" r="3" fill="#00aa44"/>
+
+  <!-- ════════════════════════════════════════════════════════
+       12V POWER ADAPTER — BOTTOM CENTER
+       ════════════════════════════════════════════════════════ -->
+  <rect x="370" y="540" width="170" height="80" rx="6" fill="#2a0a0a" stroke="#ff5500" stroke-width="2"/>
+  <rect x="370" y="540" width="170" height="22" rx="6" fill="#3a1010"/>
+  <text x="455" y="556" text-anchor="middle" fill="#ff7744" font-size="11" font-weight="bold">🔌 12V DC Adapter</text>
+  <text x="378" y="574" fill="#ff6644" font-size="8">(+) → L298N 12V terminal</text>
+  <text x="378" y="587" fill="#999" font-size="8">(−) → L298N GND terminal</text>
+  <text x="378" y="600" fill="#999" font-size="8">ESP32 GND → L298N GND</text>
+  <text x="378" y="613" fill="#ffaa44" font-size="7.5">⚠ Common Ground required!</text>
+  <!-- power line to L298N -->
+  <polyline points="540,540 540,510 757,510 757,435" fill="none" stroke="#ff5500" stroke-width="2" stroke-dasharray="8,4"/>
+  <circle cx="540" cy="540" r="3" fill="#ff5500"/>
+  <circle cx="757" cy="435" r="3" fill="#ff5500"/>
+
+  <!-- ════════════════════════════════════════════════════════
+       LEGEND
+       ════════════════════════════════════════════════════════ -->
+  <rect x="50" y="555" width="290" height="130" rx="6" fill="#0a150a" stroke="#336633" stroke-width="1.5"/>
+  <text x="195" y="573" text-anchor="middle" fill="#66aa66" font-size="10" font-weight="bold">WIRE COLOR LEGEND</text>
+  <!-- Col 1 -->
+  <line x1="65" y1="590" x2="100" y2="590" stroke="#ff5555" stroke-width="2.5"/>
+  <text x="108" y="594" fill="#ff8888" font-size="9">3.3V Supply</text>
+  <line x1="65" y1="607" x2="100" y2="607" stroke="#ff2222" stroke-width="2.5"/>
+  <text x="108" y="611" fill="#ff6666" font-size="9">5V Supply</text>
+  <line x1="65" y1="624" x2="100" y2="624" stroke="#777" stroke-width="2.5"/>
+  <text x="108" y="628" fill="#aaa" font-size="9">GND</text>
+  <line x1="65" y1="641" x2="100" y2="641" stroke="#ff5500" stroke-width="2" stroke-dasharray="6,3"/>
+  <text x="108" y="645" fill="#ff8866" font-size="9">12V Power</text>
+  <!-- Col 2 -->
+  <line x1="180" y1="590" x2="215" y2="590" stroke="#ffff00" stroke-width="2.5"/>
+  <text x="223" y="594" fill="#ffff88" font-size="9">I2C (SDA/SCL)</text>
+  <line x1="180" y1="607" x2="215" y2="607" stroke="#ff9900" stroke-width="2.5"/>
+  <text x="223" y="611" fill="#ffbb44" font-size="9">Sensor Signal</text>
+  <line x1="180" y1="624" x2="215" y2="624" stroke="#00aaff" stroke-width="2.5"/>
+  <text x="223" y="628" fill="#88ccff" font-size="9">Motor PWM</text>
+  <line x1="180" y1="641" x2="215" y2="641" stroke="#00ffbb" stroke-width="2.5"/>
+  <text x="223" y="645" fill="#88ffcc" font-size="9">Fan PWM</text>
+  <!-- dashed = shared bus note -->
+  <text x="65" y="672" fill="#556655" font-size="7.5">╌╌╌ Dashed lines = shared power/GND bus</text>
+
+  <!-- ════════════════════════════════════════════════════════
+       SENSOR LOGIC BOX
+       ════════════════════════════════════════════════════════ -->
+  <rect x="356" y="636" width="290" height="62" rx="6" fill="#0a150a" stroke="#cc8800" stroke-width="1.5"/>
+  <text x="501" y="651" text-anchor="middle" fill="#ffaa44" font-size="9.5" font-weight="bold">⚠ ACTIVE-LOW SENSOR LOGIC</text>
+  <text x="364" y="666" fill="#cccccc" font-size="8">Flame DO = LOW  →  🔥 Fire!  →  Motor STOPS</text>
+  <text x="364" y="679" fill="#cccccc" font-size="8">MQ-2  DO = LOW  →  💨 Gas!   →  Fan ACTIVATES</text>
+  <text x="364" y="692" fill="#888" font-size="7.5">I2C Addr: 0x3C  |  Baud: 115200  |  GPIO34 = Input-Only</text>
+
+  <!-- ════════════════════════════════════════════════════════
+       GITHUB TAG
+       ════════════════════════════════════════════════════════ -->
+  <text x="680" y="670" fill="#225522" font-size="9">github.com/lshariprasad</text>
+  <text x="680" y="685" fill="#1a3a1a" font-size="8">Smart Kitchen Safety System — ESP32 IoT Project</text>
+
+</svg>
