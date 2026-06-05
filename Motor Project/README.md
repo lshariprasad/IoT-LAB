@@ -179,3 +179,14 @@ This project is open‑source. Feel free to modify and distribute.
 
 Enjoy your protected motor!
 For questions, refer to the detailed comments inside the .ino file.
+
+
+PICTURES :
+
+<img width="1600" height="900" alt="image" src="https://github.com/user-attachments/assets/539560b5-591c-4975-9915-2f678fc30bcf" />
+
+<img width="1600" height="900" alt="image" src="https://github.com/user-attachments/assets/7ded8fdb-c62d-4ed7-8881-918771d7b8f5" />
+
+<img width="1600" height="900" alt="image" src="https://github.com/user-attachments/assets/29c9f98c-5a9d-4372-8364-0ff55b6e0384" />
+
+<img width="1600" height="900" alt="image" src="https://github.com/user-attachments/assets/91d9a5d9-c0cb-4428-aa77-d371b38dffff" />
