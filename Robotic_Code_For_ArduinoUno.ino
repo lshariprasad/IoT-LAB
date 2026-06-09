@@ -1,3 +1,5 @@
+// This is code is actived for servo ! 
+
 #include <Servo.h>  // Include the Servo library
 
 Servo servo_0; // Declaration of object to control the first servo
