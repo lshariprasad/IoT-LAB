@@ -1,0 +1,331 @@
+
+#include <ESP8266WiFi.h>
+#include <ESP8266WebServer.h>
+
+// ================= WIFI =================
+const char* WIFI_SSID = "SSE-EEE";
+const char* WIFI_PASSWORD = "123456789";
+
+// ================= PINS =================
+constexpr uint8_t GAS_PIN = D1;
+constexpr uint8_t ENA_PIN = D0;
+constexpr uint8_t IN1_PIN = D5;
+constexpr uint8_t IN2_PIN = D6;
+
+// Most common MQ digital modules pull DO LOW on detection.
+// Change to false if your module behaves oppositely.
+constexpr bool GAS_ACTIVE_LOW = true;
+
+// ================= SERVER =================
+ESP8266WebServer server(80);
+
+// ================= STATE ==================
+bool gasDetected = false;
+bool fanOn = false;
+bool wifiReady = false;
+
+unsigned long bootMillis;
+unsigned long lastSensorRead = 0;
+
+const char PAGE[] PROGMEM = R"HTML(
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GasGuard | IoT Monitor</title>
+<style>
+:root {
+  color-scheme: dark;
+  --bg:#0b1020; --card:#151d32; --text:#edf2ff;
+  --muted:#9aa9c7; --blue:#60a5fa; --green:#34d399;
+  --red:#fb7185; --border:#293650;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);
+font-family:system-ui,Arial,sans-serif}
+header{padding:24px 18px;border-bottom:1px solid var(--border)}
+main{max-width:900px;margin:auto;padding:20px}
+h1{margin:0;font-size:25px}
+.sub{color:var(--muted);font-size:14px;margin-top:6px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+.card{background:var(--card);border:1px solid var(--border);
+border-radius:17px;padding:20px}
+.label{font-size:13px;color:var(--muted)}
+.value{font-size:27px;font-weight:750;margin:12px 0}
+.pill{display:inline-block;padding:7px 12px;border-radius:20px;
+font-size:12px;font-weight:700;background:#27334b}
+.ok{color:var(--green)} .danger{color:var(--red)}
+button{border:0;border-radius:12px;padding:13px 18px;
+font-size:15px;font-weight:700;cursor:pointer;margin:5px 4px 5px 0}
+.on{background:var(--green);color:#062a20}
+.off{background:#334155;color:white}
+.note{color:var(--muted);font-size:13px;line-height:1.6}
+#banner{padding:15px;border-radius:12px;margin:16px 0;
+background:#163a30;border:1px solid #28644f}
+#banner.alert{background:#471e2a;border-color:#9f344b}
+footer{color:var(--muted);font-size:12px;margin:20px 0}
+</style>
+</head>
+<body>
+<header>
+  <h1>GasGuard <span style="color:#60a5fa">/ IoT</span></h1>
+  <div class="sub">ESP8266 Gas Monitor &amp; Fan Controller</div>
+</header>
+<main>
+  <div id="banner">
+    <b id="alertTitle">Connecting...</b>
+    <div class="sub" id="alertText">Reading sensor status</div>
+  </div>
+  <div class="grid">
+    <section class="card">
+      <div class="label">GAS SENSOR</div>
+      <div class="value" id="gas">--</div>
+      <span class="pill" id="gasPill">WAITING</span>
+      <p class="note">Digital DO status. This is not a gas concentration or ppm measurement.</p>
+    </section>
+    <section class="card">
+      <div class="label">12V FAN</div>
+      <div class="value" id="fan">--</div>
+      <span class="pill" id="fanPill">UNKNOWN</span>
+      <p>
+        <button class="on" onclick="controlFan(true)">Fan ON</button>
+        <button class="off" onclick="controlFan(false)">Fan OFF</button>
+      </p>
+      <div class="note" id="fanNote">Waiting for controller...</div>
+    </section>
+    <section class="card">
+      <div class="label">SYSTEM STATUS</div>
+      <div class="value" id="wifi">--</div>
+      <div class="sub">Uptime: <span id="uptime">--</span></div>
+      <div class="sub">Last update: <span id="updated">--</span></div>
+    </section>
+  </div>
+  <section class="card" style="margin-top:14px">
+    <h3>System information</h3>
+    <div class="note">
+      Board: ESP8266 · Sensor: digital output · Driver: L298N-compatible<br>
+      Gas alert does not automatically start the fan. Fan ON is blocked
+      while a gas alert is active. This interlock is educational, not
+      certified gas-leak protection.
+    </div>
+  </section>
+  <footer>GasGuard educational prototype · Local network dashboard</footer>
+</main>
+<script>
+async function refresh(){
+  try{
+    const r=await fetch('/api/status',{cache:'no-store'});
+    if(!r.ok) throw Error('HTTP '+r.status);
+    const s=await r.json();
+
+    document.getElementById('gas').textContent =
+      s.gasDetected ? 'DETECTED' : 'CLEAR';
+    document.getElementById('gasPill').textContent =
+      s.gasDetected ? 'WARNING' : 'NORMAL';
+    document.getElementById('gasPill').className =
+      'pill '+(s.gasDetected?'danger':'ok');
+
+    document.getElementById('fan').textContent =
+      s.fanOn ? 'ON' : 'OFF';
+    document.getElementById('fanPill').textContent =
+      s.fanOn ? 'RUNNING' : 'STOPPED';
+    document.getElementById('fanPill').className =
+      'pill '+(s.fanOn?'ok':'');
+    document.getElementById('fanNote').textContent =
+      s.gasDetected
+      ? 'Fan start blocked by gas-alert interlock.'
+      : 'Manual control available.';
+
+    document.getElementById('banner').className =
+      s.gasDetected ? 'alert' : '';
+    document.getElementById('alertTitle').textContent =
+      s.gasDetected ? 'GAS ALERT' : 'No gas alert';
+    document.getElementById('alertText').textContent =
+      s.gasDetected
+      ? 'Sensor threshold has been triggered.'
+      : 'No sensor alert is currently detected.';
+
+    document.getElementById('wifi').textContent =
+      s.wifi ? 'CONNECTED' : 'OFFLINE';
+    document.getElementById('uptime').textContent =
+      Math.floor(s.uptime / 60) + ' min';
+    document.getElementById('updated').textContent =
+      new Date().toLocaleTimeString();
+  }catch(e){
+    document.getElementById('wifi').textContent='UNREACHABLE';
+    document.getElementById('alertTitle').textContent='Connection lost';
+    document.getElementById('alertText').textContent=
+      'Check the ESP8266 and local Wi-Fi.';
+  }
+}
+async function controlFan(on){
+  try{
+    const r=await fetch('/api/fan?state='+(on?'on':'off'),
+                         {method:'POST'});
+    const result=await r.json();
+    if(!r.ok) alert(result.message || 'Command rejected');
+    else if(!result.ok) alert(result.message);
+    await refresh();
+  }catch(e){
+    alert('Could not reach the ESP8266.');
+  }
+}
+refresh();
+setInterval(refresh,2000);
+</script>
+</body>
+</html>
+)HTML";
+
+// ================ SENSOR ==================
+bool readGasSensor() {
+  int raw = digitalRead(GAS_PIN);
+  return GAS_ACTIVE_LOW ? (raw == LOW) : (raw == HIGH);
+}
+
+// ================ FAN CONTROL =============
+// Assumes a two-direction L298N-style H-bridge.
+void setFan(bool enabled) {
+  if (enabled && gasDetected) {
+    enabled = false;
+  }
+
+  if (enabled) {
+    digitalWrite(IN1_PIN, HIGH);
+    digitalWrite(IN2_PIN, LOW);
+    digitalWrite(ENA_PIN, HIGH);
+  } else {
+    digitalWrite(ENA_PIN, LOW);
+    digitalWrite(IN1_PIN, LOW);
+    digitalWrite(IN2_PIN, LOW);
+  }
+
+  fanOn = enabled;
+}
+
+// ================ API =====================
+void sendStatus() {
+  String json = "{";
+  json += "\"gasDetected\":";
+  json += gasDetected ? "true" : "false";
+  json += ",\"fanOn\":";
+  json += fanOn ? "true" : "false";
+  json += ",\"wifi\":";
+  json += (WiFi.status() == WL_CONNECTED) ? "true" : "false";
+  json += ",\"uptime\":";
+  json += String((millis() - bootMillis) / 1000UL);
+  json += "}";
+
+  server.sendHeader("Cache-Control", "no-store");
+  server.send(200, "application/json", json);
+}
+
+void handleFan() {
+  if (!server.hasArg("state")) {
+    server.send(400, "application/json",
+                "{\"ok\":false,\"message\":\"Missing state\"}");
+    return;
+  }
+
+  String state = server.arg("state");
+  state.toLowerCase();
+
+  if (state == "on") {
+    // Refresh sensor before accepting an ON command.
+    gasDetected = readGasSensor();
+
+    if (gasDetected) {
+      setFan(false);
+      server.send(409, "application/json",
+        "{\"ok\":false,\"message\":\"Gas alert active. Fan ON blocked.\"}");
+      return;
+    }
+
+    setFan(true);
+    server.send(200, "application/json",
+      "{\"ok\":true,\"message\":\"Fan command accepted\"}");
+    return;
+  }
+
+  if (state == "off") {
+    setFan(false);
+    server.send(200, "application/json",
+      "{\"ok\":true,\"message\":\"Fan switched off\"}");
+    return;
+  }
+
+  server.send(400, "application/json",
+              "{\"ok\":false,\"message\":\"Use on or off\"}");
+}
+
+// ================ SETUP ===================
+void setup() {
+  Serial.begin(115200);
+  bootMillis = millis();
+
+  pinMode(GAS_PIN, INPUT);
+  pinMode(ENA_PIN, OUTPUT);
+  pinMode(IN1_PIN, OUTPUT);
+  pinMode(IN2_PIN, OUTPUT);
+
+  // Keep the fan disabled during startup.
+  digitalWrite(ENA_PIN, LOW);
+  digitalWrite(IN1_PIN, LOW);
+  digitalWrite(IN2_PIN, LOW);
+
+  gasDetected = readGasSensor();
+
+  WiFi.mode(WIFI_STA);
+  WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+  Serial.print("\nConnecting to Wi-Fi");
+
+  unsigned long start = millis();
+  while (WiFi.status() != WL_CONNECTED &&
+         millis() - start < 20000UL) {
+    delay(300);
+    Serial.print(".");
+  }
+
+  if (WiFi.status() == WL_CONNECTED) {
+    Serial.println("\nWi-Fi connected!");
+    Serial.print("Dashboard: http://");
+    Serial.println(WiFi.localIP());
+  } else {
+    Serial.println("\nWi-Fi connection failed.");
+    Serial.println("Check SSID/password and restart.");
+  }
+
+  server.on("/", HTTP_GET, []() {
+    server.send_P(200, "text/html", PAGE);
+  });
+
+  server.on("/api/status", HTTP_GET, sendStatus);
+  server.on("/api/fan", HTTP_POST, handleFan);
+
+  server.onNotFound([]() {
+    server.send(404, "text/plain", "Not found");
+  });
+
+  server.begin();
+  Serial.println("Web server started.");
+}
+
+// ================ LOOP ====================
+void loop() {
+  server.handleClient();
+
+  if (millis() - lastSensorRead >= 200UL) {
+    lastSensorRead = millis();
+    gasDetected = readGasSensor();
+
+    // Stop the fan if a gas alert appears.
+    // Do not automatically restart it when the alert clears.
+    if (gasDetected && fanOn) {
+      setFan(false);
+      Serial.println("GAS ALERT: fan output disabled.");
+    }
+  }
+
+  yield();
+}
