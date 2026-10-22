@@ -1,0 +1,179 @@
+
+#include <Wire.h>
+#include <Adafruit_GFX.h>
+#include <Adafruit_SSD1306.h>
+
+#define SCREEN_WIDTH 128
+#define SCREEN_HEIGHT 64
+#define OLED_RESET -1
+#define OLED_ADDRESS 0x3C
+
+Adafruit_SSD1306 display(
+  SCREEN_WIDTH,
+  SCREEN_HEIGHT,
+  &Wire,
+  OLED_RESET
+);
+
+const int VOLTAGE_SENSOR_PIN = A0;
+const int CURRENT_SENSOR_PIN = A1;
+const int BUZZER_PIN = 8;
+const int FAN_PIN = 9;
+
+const float MIN_VOLTAGE = 2.0;
+const float FAN_ON_VOLTAGE = 3.0;
+const float MAX_VOLTAGE = 5.0;
+
+float simulatedVoltage = 1.5;
+float simulatedCurrent = 0.0;
+
+int voltageDirection = 1;
+
+unsigned long lastUpdate = 0;
+unsigned long lastAlarm = 0;
+
+const unsigned long UPDATE_INTERVAL = 500;
+const unsigned long ALARM_INTERVAL = 500;
+
+bool fanOn = false;
+bool lowVoltage = false;
+bool alarmState = false;
+
+void startupBeeps() {
+  for (int i = 0; i < 3; i++) {
+    tone(BUZZER_PIN, 2000);
+    delay(150);
+    noTone(BUZZER_PIN);
+    delay(150);
+  }
+}
+
+void updateDisplay() {
+  display.clearDisplay();
+  display.setTextColor(SSD1306_WHITE);
+
+  display.setTextSize(1);
+  display.setCursor(0, 0);
+  display.println(F("SMART VOLTAGE MONITOR"));
+  display.println(F("---------------------"));
+
+  display.setTextSize(2);
+  display.setCursor(0, 19);
+  display.print(simulatedVoltage, 1);
+  display.println(F(" V"));
+
+  display.setTextSize(1);
+  display.setCursor(0, 42);
+  display.print(F("Current: "));
+  display.print(simulatedCurrent, 2);
+  display.println(F(" A"));
+
+  display.setCursor(0, 54);
+
+  if (lowVoltage) {
+    display.print(F("LOW VOLTAGE! FAN OFF"));
+  } else if (fanOn) {
+    display.print(F("FAN: ON"));
+  } else {
+    display.print(F("FAN: OFF"));
+  }
+
+  display.display();
+}
+
+void simulateSensors() {
+  simulatedVoltage += 0.5 * voltageDirection;
+
+  if (simulatedVoltage >= MAX_VOLTAGE) {
+    simulatedVoltage = MAX_VOLTAGE;
+    voltageDirection = -1;
+  }
+
+  if (simulatedVoltage <= 1.5) {
+    simulatedVoltage = 1.5;
+    voltageDirection = 1;
+  }
+
+  simulatedCurrent =
+    (simulatedVoltage >= FAN_ON_VOLTAGE) ? 0.35 : 0.02;
+}
+
+void controlSystem() {
+  lowVoltage = (simulatedVoltage < FAN_ON_VOLTAGE);
+  fanOn = (simulatedVoltage >= FAN_ON_VOLTAGE);
+
+  digitalWrite(FAN_PIN, fanOn ? HIGH : LOW);
+
+  if (lowVoltage) {
+    unsigned long now = millis();
+
+    if (now - lastAlarm >= ALARM_INTERVAL) {
+      lastAlarm = now;
+      alarmState = !alarmState;
+
+      if (alarmState) {
+        tone(BUZZER_PIN, 1500);
+      } else {
+        noTone(BUZZER_PIN);
+      }
+    }
+  } else {
+    noTone(BUZZER_PIN);
+    alarmState = false;
+  }
+}
+
+void setup() {
+  pinMode(FAN_PIN, OUTPUT);
+  pinMode(BUZZER_PIN, OUTPUT);
+
+  digitalWrite(FAN_PIN, LOW);
+  noTone(BUZZER_PIN);
+
+  Serial.begin(9600);
+
+  if (!display.begin(SSD1306_SWITCHCAPVCC, OLED_ADDRESS)) {
+    Serial.println(F("OLED initialization failed!"));
+
+    while (true) {
+      digitalWrite(FAN_PIN, LOW);
+      noTone(BUZZER_PIN);
+      delay(1000);
+    }
+  }
+
+  display.clearDisplay();
+  display.setTextColor(SSD1306_WHITE);
+  display.setTextSize(1);
+  display.setCursor(0, 15);
+  display.println(F("SMART VOLTAGE MONITOR"));
+  display.println();
+  display.println(F("Starting system..."));
+  display.display();
+
+  startupBeeps();
+  delay(500);
+}
+
+void loop() {
+  unsigned long now = millis();
+
+  if (now - lastUpdate >= UPDATE_INTERVAL) {
+    lastUpdate = now;
+
+    simulateSensors();
+    controlSystem();
+    updateDisplay();
+
+    Serial.print(F("Voltage: "));
+    Serial.print(simulatedVoltage, 1);
+    Serial.print(F(" V | Current: "));
+    Serial.print(simulatedCurrent, 2);
+    Serial.print(F(" A | Fan: "));
+    Serial.print(fanOn ? F("ON") : F("OFF"));
+    Serial.print(F(" | Status: "));
+    Serial.println(
+      lowVoltage ? F("LOW VOLTAGE") : F("NORMAL")
+    );
+  }
+}
