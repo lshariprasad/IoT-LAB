@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0b1020"><title>GasGuard</title>
+<style>
+:root{color-scheme:dark;--bg:#0a1020;--panel:#121d32;--line:#293752;--text:#eef4ff;--muted:#9eacc5;--green:#34d399;--red:#fb7185;--blue:#8bbcff;--amber:#fbbf24}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 50% -20%,#1c3761 0,transparent 55%),var(--bg);font-family:Inter,Segoe UI,Arial,sans-serif;color:var(--text)}
+header{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:18px clamp(14px,4vw,38px);border-bottom:1px solid var(--line);background:#0a1020ed;position:sticky;top:0;z-index:2}
+.brand{font-size:19px;font-weight:850}.brand span{color:var(--blue)}
+.device{display:flex;align-items:center;gap:8px;border-radius:999px;padding:9px 13px;font-size:12px;font-weight:850;letter-spacing:.4px;border:1px solid var(--line);white-space:nowrap}
+.dot{width:9px;height:9px;border-radius:50%;background:#9aa8bd}
+.device.on{color:var(--green);background:#0c2b25;border-color:#1c654e}.device.on .dot{background:var(--green);box-shadow:0 0 12px #34d39988}
+.device.off{color:var(--red);background:#311923;border-color:#783148}.device.off .dot{background:var(--red);box-shadow:0 0 12px #fb718588}
+main{max-width:920px;margin:auto;padding:24px 16px 40px}
+.headline{margin:8px 0 20px}.eyebrow{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--blue);font-weight:800}
+h1{font-size:clamp(25px,5vw,36px);margin:7px 0}.sub{color:var(--muted);font-size:13px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(235px,1fr));gap:14px}
+.card{background:linear-gradient(145deg,#17243b,#111a2b);border:1px solid var(--line);border-radius:18px;padding:20px;min-width:0}
+.card.gas-alert{background:linear-gradient(145deg,#481e2a,#201522);border-color:#b43c56;box-shadow:0 0 0 1px #fb718522}
+.card.gas-clear{border-color:#21634f}
+.label{color:var(--muted);font-size:11px;letter-spacing:1.1px;font-weight:800}
+.big{font-size:30px;font-weight:900;margin:14px 0 7px;letter-spacing:.3px}
+.green{color:var(--green)}.red{color:var(--red)}.blue{color:var(--blue)}
+.pill{display:inline-flex;align-items:center;gap:7px;padding:7px 10px;border-radius:99px;font-size:11px;font-weight:850;background:#27334b}
+.pill.good{background:#0d3028;color:var(--green)}.pill.bad{background:#421d29;color:var(--red)}.pill.wait{background:#332b19;color:var(--amber)}
+button{border:0;border-radius:11px;padding:12px 15px;font-weight:800;font-size:13px;cursor:pointer;transition:transform .12s,opacity .12s}
+button:active{transform:scale(.98)}button:disabled{opacity:.45;cursor:not-allowed}
+.controls{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.btn-auto{background:#293a58;color:#e8f1ff}.btn-on{background:var(--green);color:#06271e}.btn-off{background:#3a465c;color:white}
+.note{font-size:12px;color:var(--muted);line-height:1.55;margin-top:13px}
+.row{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:12px;font-size:13px}.row span:first-child{color:var(--muted)}
+.alertbar{display:none;border:1px solid #b43c56;background:#401b27;color:#ffdce3;padding:13px 15px;border-radius:13px;margin-bottom:14px;font-weight:750;font-size:13px}
+.alertbar.show{display:block}.last{margin-top:20px;text-align:center;color:var(--muted);font-size:11px}
+@media(max-width:480px){header{padding:15px 12px}.brand{font-size:17px}.device{font-size:10px;padding:8px 9px}main{padding:20px 12px}.card{padding:17px}}
+</style></head>
+<body>
+<header>
+  <div class="brand">GasGuard<span>.</span></div>
+  <div id="deviceBadge" class="device off"><span class="dot"></span><span id="deviceText">DEVICE OFF</span></div>
+</header>
+<main>
+  <section class="headline"><div class="eyebrow">Live monitoring</div><h1>Gas &amp; Fan Status</h1><div class="sub">Live device connection and sensor status</div></section>
+  <div id="gasAlertBar" class="alertbar">GAS ALERT DETECTED</div>
+  <section class="grid">
+    <article id="gasCard" class="card gas-clear">
+      <div class="label">GAS SENSOR</div><div id="gasValue" class="big green">CLEAR</div>
+      <span id="gasPill" class="pill good">NORMAL</span>
+      <div class="note">Digital sensor status</div>
+    </article>
+    <article class="card">
+      <div class="label">FAN STATUS</div><div id="fanValue" class="big">OFF</div>
+      <span id="fanPill" class="pill">STOPPED</span>
+      <div class="row"><span>Control mode</span><strong id="modeValue">AUTO</strong></div>
+      <div class="controls">
+        <button class="btn-auto" onclick="sendCommand('auto')">AUTO</button>
+        <button class="btn-on" onclick="sendCommand('on')">FAN ON</button>
+        <button class="btn-off" onclick="sendCommand('off')">FAN OFF</button>
+      </div>
+      <div id="fanNote" class="note">In AUTO, the fan follows the sensor and remains on briefly after the sensor clears.</div>
+    </article>
+    <article class="card">
+      <div class="label">DEVICE CONNECTION</div><div id="connectionValue" class="big red">OFFLINE</div>
+      <span id="connectionPill" class="pill bad">NO HEARTBEAT</span>
+      <div class="row"><span>Last update</span><strong id="lastSeen">Never</strong></div>
+      <div class="row"><span>Wi-Fi</span><strong id="wifiValue">—</strong></div>
+    </article>
+  </section>
+  <div id="feedback" class="note" role="status"></div>
+  <div class="last">Auto refresh · Every 3 seconds</div>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+async function refresh(){
+ try{
+  const r=await fetch('get_status.php?t='+Date.now(),{cache:'no-store'});
+  if(!r.ok)throw new Error('Status HTTP '+r.status);
+  const s=await r.json();if(!s.ok)throw new Error(s.error||'Status unavailable');
+  const online=s.online===true;
+  $('deviceBadge').className='device '+(online?'on':'off');
+  $('deviceText').textContent=online?'DEVICE ON':'DEVICE OFF';
+  $('connectionValue').textContent=online?'ONLINE':'OFFLINE';
+  $('connectionValue').className='big '+(online?'green':'red');
+  $('connectionPill').className='pill '+(online?'good':'bad');
+  $('connectionPill').textContent=online?'CONNECTED':'NO HEARTBEAT';
+  $('wifiValue').textContent=online?'CONNECTED':'—';
+  $('lastSeen').textContent=s.last_seen ? (s.age_seconds<60?s.age_seconds+'s ago':Math.floor(s.age_seconds/60)+'m ago') : 'Never';
+  const gas=online && s.gasDetected===true;
+  $('gasCard').className='card '+(gas?'gas-alert':'gas-clear');
+  $('gasValue').textContent=online?(gas?'GAS DETECTED':'CLEAR'):'UNKNOWN';
+  $('gasValue').className='big '+(gas?'red':(online?'green':'red'));
+  $('gasPill').className='pill '+(gas?'bad':(online?'good':'wait'));
+  $('gasPill').textContent=online?(gas?'ALERT':'NORMAL'):'NO DATA';
+  $('gasAlertBar').classList.toggle('show',gas);
+  $('fanValue').textContent=online?(s.fanOn?'ON':'OFF'):'—';
+  $('fanValue').className='big '+(online&&s.fanOn?'green':'');
+  $('fanPill').className='pill '+(online&&s.fanOn?'good':'');
+  $('fanPill').textContent=online?(s.fanOn?'RUNNING':'STOPPED'):'NO DATA';
+  $('modeValue').textContent=s.mode||'AUTO';
+  $('fanNote').textContent=s.mode==='AUTO'?'AUTO mode: sensor controls fan; after gas clears, fan runs for the cooldown period.':'MANUAL mode: use FAN ON/OFF. Gas detection still forces the fan on in this prototype.';
+  if(!online)$('feedback').textContent='Waiting for the device heartbeat.';
+ }catch(e){$('deviceBadge').className='device off';$('deviceText').textContent='DEVICE OFF';$('connectionValue').textContent='OFFLINE';$('connectionValue').className='big red';$('lastSeen').textContent='Status unavailable';}
+}
+async function sendCommand(command){
+ $('feedback').textContent='Sending command…';
+ try{
+  const r=await fetch('command.php',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({command})});
+  const data=await r.json();
+  if(!r.ok||!data.ok)throw new Error(data.error||'Command failed');
+  $('feedback').textContent=data.message||'Command queued.';
+  await refresh();
+ }catch(e){$('feedback').textContent='Could not send command: '+e.message;}
+}
+refresh();setInterval(refresh,3000);
+</script>
+</body></html>

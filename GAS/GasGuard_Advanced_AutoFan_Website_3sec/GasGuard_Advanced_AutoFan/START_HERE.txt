@@ -1,0 +1,52 @@
+GASGUARD ADVANCED PACKAGE — HOSTINGER + ESP8266 NODEMCU
+=======================================================
+
+WEBSITE
+Upload the CONTENTS of public_html/ into the folder serving https://gas.generai.in/
+(usually public_html on Hostinger): index.html, config.php, get_status.php,
+update_status.php, command.php, and .htaccess.
+
+BACK UP FIRST. These PHP files replace existing endpoints. If the site already has an
+.htaccess file, back it up and merge the provided rules rather than blindly overwriting it.
+
+FIRMWARE
+Open ESP8266_FIRMWARE/gasguard_esp8266_advanced.ino in Arduino IDE.
+Replace YOUR_WIFI_NAME and YOUR_WIFI_PASSWORD with the network credentials your NodeMCU uses.
+The token in this firmware matches public_html/config.php in this exact ZIP.
+Select NodeMCU 1.0 (ESP-12E Module), upload, then open Serial Monitor at 115200 baud.
+
+TIMING UPDATE
+- Fan cooldown after the sensor reports gas clear is 3 seconds (3000 ms).
+- Website commands are checked by the ESP8266 about every 5 seconds; that polling interval is separate from the 3-second fan cooldown.
+
+FEATURES
+- Top-right DEVICE ON/OFF based on recent cloud heartbeat.
+- Gas panel becomes red on gas alert and green when clear.
+- AUTO mode: gas detected => fan ON; after gas clears, fan stays on for 3 seconds, then OFF.
+- Website FAN ON/FAN OFF buttons queue a command; the ESP polls/applies commands on its next heartbeat (about 5 seconds).
+- AUTO, FAN ON, and FAN OFF buttons are also available on the local ESP page.
+- Gas detection always overrides FAN OFF in this prototype.
+
+CHECKS
+Open https://gas.generai.in/get_status.php; after heartbeat it should report online true
+and include gasDetected, fanOn, and mode.
+The ESP Serial Monitor should show HTTP 200 and {"ok":true,...}.
+
+TROUBLESHOOTING
+401 = token mismatch; use config.php and firmware from this same ZIP.
+404 = wrong remote folder or missing PHP endpoint.
+500 = PHP error or PHP cannot write device_status.json/device_command.json; inspect hosting
+error logs and folder permissions.
+If dashboard buttons say offline, wait for a successful heartbeat first.
+
+SAFETY
+Many flammable-gas vapors can be ignited by ordinary motors, relays, fans, or sparks.
+This hobby prototype is not suitable for real gas-leak ventilation or life safety. Do not
+use it in a real hazardous atmosphere; use a certified gas detector and appropriately
+rated ventilation equipment. A common MQ sensor's digital output is not a calibrated CO2
+measurement. Confirm the sensor model and output polarity before relying on readings.
+
+HTTPS NOTE
+The firmware uses setInsecure() for initial troubleshooting, which encrypts HTTPS but does
+not validate the server certificate. Configure CA/certificate validation before production.
+Keep the firmware private because it contains the device token.
