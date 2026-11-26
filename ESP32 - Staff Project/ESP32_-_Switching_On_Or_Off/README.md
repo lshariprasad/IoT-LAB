@@ -1,257 +1,74 @@
-# ⚡ ESP32 Smart Switch – IoT Control Panel
+# ESP32 Smart Switch Dashboard
 
-A beautiful, real-time web-based switch monitoring system built on **ESP32**.  
-Designed for **Dr. Anand**, Dean of the College — this project reads a physical switch connected to GPIO and displays its status on a stunning animated web dashboard.
+A Wi-Fi-connected ESP32 project that reads a physical switch and serves a browser dashboard showing its current state.
 
-![ESP32](https://img.shields.io/badge/ESP32-Dev%20Module-blue?style=for-the-badge&logo=espressif&logoColor=white)
-![Arduino](https://img.shields.io/badge/Arduino-IDE%201.8.19-00979D?style=for-the-badge&logo=arduino&logoColor=white)
-![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)
-![Status](https://img.shields.io/badge/Status-Working-brightgreen?style=for-the-badge)
+## Features verified in the firmware
 
----
+- Reads a normally-open switch using the ESP32 internal `INPUT_PULLUP`.
+- Serves the dashboard from the ESP32 using the Arduino `WebServer` library.
+- Exposes `/` for the dashboard and `/status` for the switch state.
+- The browser polls the status endpoint every 500 ms.
+- Uses GPIO 5 for the switch input.
 
-## 📸 Preview
-
-<img width="240" height="790" alt="image" src="https://github.com/user-attachments/assets/0372723e-3fa8-490a-ae6f-f0b5950920d3" />
-<img width="240" height="790" alt="image" src="https://github.com/user-attachments/assets/1a812f35-e527-4a2e-9645-fae4fe4a2d09" />
-<img width="240" height="790" alt="image" src="https://github.com/user-attachments/assets/accfaaf6-8fd4-4789-9c97-190bea700d39" />
-<img width="240" height="790" alt="image" src="https://github.com/user-attachments/assets/7f842ada-9cd5-4faa-a958-d2ef294cdade" />
-
----
-
-<img width="1047" height="432" alt="image" src="https://github.com/user-attachments/assets/783c5ea2-8f98-4fe8-9412-52d6d54dfb1a" />
-
----
-
-| Switch ON | Switch OFF | Loading State |
-|:---------:|:----------:|:-------------:|
-| 🟢 Green Glow | 🔴 Red Glow | ⚪ Gray Pulse |
-
-> The dashboard features glassmorphism UI, animated particles, rotating borders, real-time polling, activity logging, and a syntax-highlighted code viewer — all served directly from the ESP32.
-
----
-
-## ✨ Features
-
-- 🔄 **Real-Time Monitoring** — Polls switch state every second via AJAX  
-- 🎨 **Modern UI** — Glassmorphism cards, gradient backgrounds, floating particles  
-- 💡 **Animated Switch Display** — Glowing ring with pulse animation  
-- 📊 **Live Dashboard** — Toggle counter, uptime tracker, last check timestamp  
-- 📝 **Activity Log** — Timestamped history of switch state changes (max 20 entries)  
-- 📋 **Built-in Code Viewer** — Syntax-highlighted Arduino code with copy-to-clipboard  
-- 📱 **Fully Responsive** — Works on mobile, tablet, and desktop  
-- ⚡ **No External Server Required** — Everything runs directly on ESP32  
-- 🔌 **Simple Wiring** — Only one switch between GPIO 5 and GND  
-
----
-
-## 🛠 Hardware Required
+## Hardware
 
 | Component | Quantity | Notes |
-|-----------|:--------:|-------|
-| ESP32 Dev Module | 1 | Any ESP32 board |
-| Push Button / Toggle Switch | 1 | Normally Open (NO) |
-| Jumper Wires | 2 | As required |
-| USB Cable | 1 | For programming & power |
+|---|---:|---|
+| ESP32 development board | 1 | Select the matching ESP32 board in Arduino IDE |
+| Normally-open push button or switch | 1 | Connect between GPIO 5 and GND |
+| USB data cable | 1 | Programming and power |
 
-> No external resistors required — the code uses `INPUT_PULLUP`.
+### Wiring
 
----
+| ESP32 | Switch |
+|---|---|
+| GPIO 5 | Terminal 1 |
+| GND | Terminal 2 |
 
-## 🔌 Wiring
+The firmware configures GPIO 5 as `INPUT_PULLUP`; no external pull-up resistor is required for this simple button connection.
 
-```
-ESP32                    Switch
-┌──────────┐            ┌──────┐
-│          │            │      │
-│    GPIO 5├────────────┤ Pin 1│
-│          │            │      │
-│      GND ├────────────┤ Pin 2│
-│          │            │      │
-└──────────┘            └──────┘
-```
+## Repository location
 
-| ESP32 Pin | Connects To |
-|:---------:|:-----------:|
-| GPIO 5 | Switch Pin 1 |
-| GND | Switch Pin 2 |
+From the repository root, the project is in:
 
-**Working Logic:**
-- Switch pressed → GPIO reads `0` → 🟢 ON  
-- Switch released → GPIO reads `1` → 🔴 OFF  
-
----
-
-## 🚀 Getting Started
-
-### Prerequisites
-
-- Arduino IDE (v1.8.19 or later)
-- ESP32 Board Package installed
-- 2.4GHz WiFi Network
-
----
-
-### 1️⃣ Clone the Repository
-
-```bash
-git clone https://github.com/YOUR_USERNAME/esp32-smart-switch.git
-cd esp32-smart-switch
+```text
+ESP32 - Staff Project/
+└── ESP32_-_Switching_On_Or_Off/
+    ├── ESP32_-_Switching_On_Or_Off.ino
+    └── README.md
 ```
 
----
+## Setup
 
-### 2️⃣ Configure WiFi Credentials
+1. Open `ESP32_-_Switching_On_Or_Off.ino` in Arduino IDE.
+2. In the source file, set `YOUR_WIFI_SSID` and `YOUR_WIFI_PASSWORD` to your local 2.4 GHz Wi-Fi credentials.
+3. Do not commit real Wi-Fi credentials. Keep your local configured copy private; before sharing code, restore the placeholders.
+4. Install/select the ESP32 board support package and choose the correct ESP32 board and serial port.
+5. Upload the sketch.
+6. Open Serial Monitor at 115200 baud and note the IP address printed after Wi-Fi connects.
+7. Open that IP address in a browser on the same local network.
 
-Open `esp32_smart_switch.ino` and update:
+## HTTP endpoints
 
-```cpp
-const char* ssid = "YOUR_WIFI_NAME";
-const char* password = "YOUR_WIFI_PASSWORD";
-```
+| Path | Method | Purpose |
+|---|---|---|
+| `/` | GET | Serves the dashboard page |
+| `/status` | GET | Returns the current switch state |
 
----
+## Security notes
 
-### 3️⃣ Upload to ESP32
+- The firmware is intended for a trusted local network demonstration.
+- Do not expose the ESP32 web server directly to the public internet.
+- The dashboard endpoint has no authentication in the current firmware; anyone on the reachable network may view the switch status.
+- If Wi-Fi credentials were ever committed to a public repository, changing them is necessary. Replacing the values in the current file does not remove them from previous Git commits.
 
-1. Open `.ino` file in Arduino IDE  
-2. Select **ESP32 Dev Module**  
-3. Select correct COM Port  
-4. Click Upload  
+## Troubleshooting
 
----
+- **ESP32 does not connect:** confirm the SSID/password locally, use a 2.4 GHz network, and check Serial Monitor output.
+- **Dashboard does not load:** confirm the phone/computer and ESP32 are on the same network and use the current IP address.
+- **Switch state does not change:** check the GPIO 5-to-GND wiring and confirm the sketch was uploaded to the intended board.
+- **No serial output:** select the correct port and set Serial Monitor to 115200 baud.
 
-### 4️⃣ Find the IP Address
+## Author
 
-Open Serial Monitor (115200 baud).
-
-Example output:
-
-```
-Connecting...
-Connected!
-IP Address: 10.23.22.198
-```
-
----
-
-### 5️⃣ Open Dashboard
-
-In browser:
-
-```
-http://10.23.22.198
-```
-
-(Use your actual IP address)
-
----
-
-## 📁 Project Structure
-
-```
-esp32-smart-switch/
-│
-├── esp32_smart_switch.ino
-├── README.md
-└── LICENSE
-```
-
----
-
-## 🔧 API Endpoints
-
-| Endpoint | Method | Response | Description |
-|----------|:------:|----------|-------------|
-| `/` | GET | HTML Page | Full dashboard |
-| `/status` | GET | `0` or `1` | Switch state |
-
-Example:
-
-```bash
-curl http://192.168.1.100/status
-```
-
----
-
-## ⚙ Configuration
-
-### Change GPIO Pin
-
-```cpp
-#define SWITCH_PIN 5
-```
-
-### Change Polling Interval
-
-```javascript
-setInterval(pollStatus, 1000);
-```
-
----
-
-## 🐛 Troubleshooting
-
-### Dashboard Stuck on Loading
-- Ensure ESP32 is connected to WiFi
-- Use 2.4GHz network
-- Check IP address in Serial Monitor
-- Ensure browser is on same network
-
-### Switch Not Updating
-- Verify wiring
-- Confirm correct GPIO pin
-- Refresh browser
-
-### Serial Monitor Blank
-- Set baud rate to 115200
-- Check COM port
-- Use data USB cable
-
-### Compilation Error: Unterminated Raw String
-Do not modify the raw string delimiter in the HTML section.
-
----
-
-## 📊 Performance
-
-| Metric | Value |
-|--------|-------|
-| HTML Size | ~15 KB |
-| Status Response | < 5ms |
-| Polling | 1 sec |
-| Max Log Entries | 20 |
-| RAM Usage | ~45 KB |
-
----
-
-## 🤝 Contributing
-
-1. Fork repository  
-2. Create feature branch  
-3. Commit changes  
-4. Push branch  
-5. Open Pull Request  
-
----
-
-## 📜 License
-
-MIT License — see LICENSE file.
-
----
-
-## 👨‍💻 Author
-
-**Your Name**  
-GitHub: https://github.com/lshariprasad  
-
----
-
-<div align="center">
-
-⭐ If you found this project useful, please give it a star! ⭐  
-
-Built with ❤️ for IoT  
-
-</div>
+Hari Prasad L S — [GitHub profile](https://github.com/lshariprasad)
