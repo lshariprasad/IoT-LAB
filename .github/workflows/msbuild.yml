@@ -1,44 +1,55 @@
-# This workflow uses actions that are not certified by GitHub.
-# They are provided by a third-party and are governed by
-# separate terms of service, privacy policy, and support
-# documentation.
-
-name: MSBuild
+name: Arduino repository checks
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   pull_request:
-    branches: [ "main" ]
-
-env:
-  # Path to the solution file relative to the root of the project.
-  SOLUTION_FILE_PATH: .
-
-  # Configuration type to build.
-  # You can convert this to a build matrix if you need coverage of multiple configuration types.
-  # https://docs.github.com/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
-  BUILD_CONFIGURATION: Release
+    branches: ["main"]
 
 permissions:
   contents: read
 
 jobs:
-  build:
-    runs-on: windows-latest
-
+  repository-checks:
+    name: Validate Arduino repository structure
+    runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+      - name: Check out repository
+        uses: actions/checkout@v4
 
-    - name: Add MSBuild to PATH
-      uses: microsoft/setup-msbuild@v1.0.2
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
 
-    - name: Restore NuGet packages
-      working-directory: ${{env.GITHUB_WORKSPACE}}
-      run: nuget restore ${{env.SOLUTION_FILE_PATH}}
+      - name: Check sketch files and portable paths
+        run: |
+          python - <<'PY'
+          import os
+          import sys
 
-    - name: Build
-      working-directory: ${{env.GITHUB_WORKSPACE}}
-      # Add additional options to the MSBuild command line here (like platform or verbosity level).
-      # See https://docs.microsoft.com/visualstudio/msbuild/msbuild-command-line-reference
-      run: msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} ${{env.SOLUTION_FILE_PATH}}
+          sketches = []
+          invalid_paths = []
+
+          for root, dirs, files in os.walk("."):
+              dirs[:] = [d for d in dirs if d != ".git"]
+              for name in dirs + files:
+                  path = os.path.join(root, name)
+                  if name != name.rstrip() or path != path.rstrip():
+                      invalid_paths.append(path)
+              for name in files:
+                  if name.lower().endswith(".ino"):
+                      sketches.append(os.path.join(root, name))
+
+          if not sketches:
+              print("No Arduino .ino sketches were found.")
+              sys.exit(1)
+
+          if invalid_paths:
+              print("Paths with trailing whitespace are not portable:")
+              for path in invalid_paths:
+                  print(f" - {path}")
+              sys.exit(1)
+
+          print(f"Repository structure check passed; found {len(sketches)} Arduino sketch(es).")
+          PY
