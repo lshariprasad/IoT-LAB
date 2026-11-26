@@ -11,11 +11,11 @@
 #define BUZZER_PIN 27
 
 // -------- WiFi Details ---
-const char* ssid = "HARIDEVAN2006";
-const char* password = "HARIDEVAN@1410";
+const char* ssid = "YOUR_WIFI_SSID";
+const char* password = "YOUR_WIFI_PASSWORD";
 
 // 🔴 VERY IMPORTANT: Your PC IP (from Python output)
-const char* serverIP = "10.109.115.126";
+const char* serverIP = "YOUR_PC_IP";
 const int serverPort = 5000;
 
 // -------- Objects --------
