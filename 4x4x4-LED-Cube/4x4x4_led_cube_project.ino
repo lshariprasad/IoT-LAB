@@ -4,8 +4,19 @@ const int columnPins[16] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, A0, A1
 const int layerPins[4] = {A2, A3, A4, A5};
 
 void setup() {
-  for (int i = 0; i < 16; i++) pinMode(columnPins[i], OUTPUT);
-  for (int i = 0; i < 4; i++) pinMode(layerPins[i], OUTPUT);
+  // Configure outputs in a known inactive state before running animations.
+  for (int i = 0; i < 16; i++) {
+    pinMode(columnPins[i], OUTPUT);
+    digitalWrite(columnPins[i], LOW);
+  }
+
+  // Layer drivers are active LOW, so HIGH keeps every layer disabled at startup.
+  for (int i = 0; i < 4; i++) {
+    pinMode(layerPins[i], OUTPUT);
+    digitalWrite(layerPins[i], HIGH);
+  }
+
+  randomSeed(analogRead(A6));
 }
 
 void loop() {
