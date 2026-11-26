@@ -1,196 +1,138 @@
-# 📌 IoT Based RFID Attendance System using ESP32
+# ESP32 RFID Attendance System
 
-This project implements an **IoT-based Smart Attendance System** using **ESP32**, **RFID**, and a **Python Flask server** to automatically store attendance records in an **Excel file** with real-time date and time.
+An ESP32-based RFID attendance demonstration. The ESP32 reads an RC522 card UID and sends it over the local Wi-Fi network to a Python Flask server, which maps known UIDs to student records and appends attendance entries to an Excel workbook.
 
-It is designed for academic demonstration and college project submission.
+## Architecture
 
----
-
-## 🚀 Features
-
-- RFID based attendance marking  
-- ESP32 with WiFi communication  
-- Automatic name mapping using UID  
-- Real-time Date & Time logging  
-- Attendance stored directly in Excel  
-- LCD display for status messages  
-- Buzzer for confirmation sound  
-
----
-
-## 🧰 Hardware Components Used
-
-- ESP32 Development Board  
-- RFID Module (RC522)  
-- RFID Cards/Tags  
-- 16x2 I2C LCD Display  
-- Buzzer  
-- Breadboard & Jumper Wires  
-
----
-
-## 💻 Software & Tools Used
-
-- Arduino IDE  
-- Python 3.x  
-- Flask (Python Web Framework)  
-- OpenPyXL (Excel Library)  
-
----
-
-RFID Card
-    ↓
-RFID Reader (RC522)
-    ↓
-ESP32  ──── WiFi ────> PC / Server (Python Script)
-    ↓                      ↓
- LCD Display            Excel File (.xlsx)
-    ↓
- Buzzer
-
----
-🟢 1️⃣ ESP32 ↔ RFID RC522 CONNECTIONS :
-
-| RC522 Pin | ESP32 Pin | Purpose          |
-| --------- | --------- | ---------------- |
-| SDA       | GPIO 5    | SS (Chip Select) |
-| SCK       | GPIO 18   | SPI Clock        |
-| MOSI      | GPIO 23   | SPI MOSI         |
-| MISO      | GPIO 19   | SPI MISO         |
-| RST       | GPIO 22   | Reset            |
-| 3.3V      | 3.3V      | Power            |
-| GND       | GND       | Ground           |
-
-🟢 2️⃣ ESP32 ↔ LCD I2C (16x2, Address 0x27) :
-
-| LCD Pin | ESP32 Pin | Purpose   |
-| ------- | --------- | --------- |
-| VCC     | 5V (VIN)  | Power     |
-| GND     | GND       | Ground    |
-| SDA     | GPIO 21   | I2C Data  |
-| SCL     | GPIO 22   | I2C Clock |
-
-🟢 3️⃣ ESP32 ↔ BUZZER CONNECTION : 
-
-| Buzzer Pin | ESP32 Pin | Purpose |
-| ---------- | --------- | ------- |
-| + (VCC)    | GPIO 27   | Control |
-| - (GND)    | GND       | Ground  |
-
-🟢 4️⃣ POWER CONNECTION SUMMARY : 
-
-| Device | Power Pin | ESP32 Pin |
-| ------ | --------- | --------- |
-| RFID   | VCC       | 3.3V      |
-| LCD    | VCC       | 5V (VIN)  |
-| Buzzer | +         | GPIO 27   |
-| All    | GND       | GND       |
-
-
-🟢 5️⃣ VERY IMPORTANT FINAL CHECK
-Before submission, verify:
-
-RFID powered from 3.3V only
-
-LCD shows text when powered
-
-Buzzer beeps on scan
-
-All GND connected together
-
-
----
-
-## 🖼️ Picture :
-![WhatsApp Image 2026-01-21 at 8 53 46 AM](https://github.com/user-attachments/assets/af1baa00-2d59-44d7-9fcd-2309c6d7923a)
-
-![WhatsApp Image 2026-01-21 at 9 17 19 AM](https://github.com/user-attachments/assets/2c31c6eb-ad11-4e8e-98d2-f0b127c159d7)
-
-![WhatsApp Image 2026-01-21 at 9 19 22 AM](https://github.com/user-attachments/assets/a204457c-8a16-4cf1-87e6-86438a3c3973)
-
-![WhatsApp Image 2026-01-21 at 9 24 52 AM](https://github.com/user-attachments/assets/80fd92e0-fd23-4d62-899a-da9c874a0686)
-
----
-
-## 🔧 Working Principle
-
-1. Student scans RFID card on RC522 module.  
-2. ESP32 reads the UID of the card.  
-3. ESP32 sends the UID to the Python Flask server over WiFi.  
-4. Flask server maps UID to student details (SNO, Name, Department).  
-5. Current Date and Time are automatically generated.  
-6. Attendance is stored in `attendance.xlsx`.  
-7. LCD shows "Attendance Marked" and buzzer beeps for confirmation.
-
----
-
-## 📂 Project Structure
-
-ESP32_Attendance/
-│
-├── attendance_in_esp32.ino # ESP32 Arduino Code
-├── attendance_server.py # Python Flask Server
-├── attendance.xlsx # Generated Excel File (after running)
-└── README.md # Project Documentation
-
-
----
-
-## 🧪 How to Run the Project
-
-### 1️⃣ Install Required Python Libraries
-
-bash
-```
-pip install flask openpyxl
-```
-You Should be the safe the file in the order or a folder.
-```
-cd C:\Users
-```
-You should see:
-```
-Running on http://<PC_IP>:5000
+```text
+RFID card
+   |
+RC522 reader --SPI--> ESP32
+                       |-- I2C --> 16x2 LCD
+                       |-- GPIO 27 --> buzzer
+                       |
+                     Wi-Fi
+                       |
+                 Flask server (PC)
+                       |
+                 attendance.xlsx
 ```
 
-3️⃣ Upload ESP32 Code
-Open attendance_in_esp32.ino in Arduino IDE
+## Hardware
 
-Select Board: ESP32 Dev Module
+- ESP32 development board
+- MFRC522 RFID reader and compatible cards/tags
+- 16x2 I2C LCD (configured at address `0x27`)
+- Buzzer
+- Jumper wires and common ground
 
-Select correct COM Port
+## Wiring verified from the firmware
 
-Update this line with your PC IP: 
+### RC522 to ESP32
+
+| RC522 | ESP32 GPIO |
+|---|---:|
+| SDA / SS | 5 |
+| SCK | 18 (default VSPI clock) |
+| MOSI | 23 (default VSPI MOSI) |
+| MISO | 19 (default VSPI MISO) |
+| RST | 22 |
+| 3.3V | 3.3V |
+| GND | GND |
+
+Power the RC522 from 3.3 V.
+
+### LCD and buzzer
+
+| Module | ESP32 |
+|---|---|
+| LCD SDA | GPIO 21 |
+| LCD SCL | GPIO 22 |
+| LCD VCC | 5V/VIN as supported by the specific LCD module |
+| LCD GND | GND |
+| Buzzer control | GPIO 27 |
+| Buzzer GND | GND |
+
+**Pin conflict to resolve before wiring:** the firmware currently assigns GPIO 22 to both the RC522 reset pin and the LCD SCL line. These cannot share the same signal. Change one assignment in the sketch and update the wiring table before building the circuit. This documentation intentionally flags the conflict rather than guessing which pin you used physically.
+
+## Software
+
+- Arduino IDE with ESP32 board support
+- Arduino libraries: MFRC522 and LiquidCrystal_I2C
+- Python 3
+- Python packages: Flask and openpyxl
+
+Install the Python packages:
+
+```bash
+python -m pip install flask openpyxl
 ```
+
+## Configuration
+
+### 1. Configure the ESP32 sketch
+
+Open `attendance_in_esp32.ino` and set these local values:
+
+```cpp
+const char* ssid = "YOUR_WIFI_SSID";
+const char* password = "YOUR_WIFI_PASSWORD";
 const char* serverIP = "YOUR_PC_IP";
+const int serverPort = 5000;
 ```
-Upload the code
 
-Open Serial Monitor at 115200 baud # In Arduino IDE
+Use your 2.4 GHz Wi-Fi network and the PC's LAN IPv4 address. Keep real Wi-Fi credentials out of Git commits.
 
-👨‍🎓 Student Mapping (Example)
+### 2. Configure student UID mapping
 
-| SNO | NAME        | DEPARTMENT |
-| --- | ----------- | ---------- |
-| 1   | VIJAY ANAND | EEE        |
-| 2   | SATHISH     | EEE        |
-| 3   | GURU PRASAD | EEE        |
-| 4   | HARI PRASAD | EEE        |
+In `attendance_server.py`, update the `students` dictionary with the card UIDs and the correct student records for your own demonstration. Do not publish real student identifiers or personal data without permission.
 
-📊 Sample Output (Excel)
-| SNO | NAME        | DEPARTMENT | DATE       | TIME     |
-| --- | ----------- | ---------- | ---------- | -------- |
-| 1   | VIJAY ANAND | EEE        | 2026-01-21 | 08:30:12 |
-| 2   | SATHISH     | EEE        | 2026-01-21 | 08:31:05 |
+### 3. Start the Flask server
 
-🧑‍💻 Author
-Hari Prasad
-Department of Electrical and Electronics Engineering (EEE)
-RFID Attendance System Project
+From the `ESP32_Attendance` folder, run:
 
-⭐ If you like this project
-Give a ⭐ star on GitHub and feel free to fork and improve it!
+```bash
+python attendance_server.py
+```
 
+The server listens on port 5000 on all network interfaces. Keep it on a trusted private network.
 
+### 4. Upload the ESP32 sketch
 
+- Select the appropriate ESP32 board and serial port in Arduino IDE.
+- Upload `attendance_in_esp32.ino`.
+- Open Serial Monitor at 115200 baud.
+- Scan a registered card and check the server output and generated `attendance.xlsx` file.
 
+## Firmware/server behavior
+
+1. The ESP32 reads the UID from the RC522.
+2. It converts the UID bytes to a hexadecimal string.
+3. It sends an HTTP GET request to `/mark?uid=<UID>` on the Flask server.
+4. The server looks up the UID in the local mapping.
+5. A recognised UID is appended to `attendance.xlsx` with the server's current date and time.
+
+Unknown UIDs return `UNKNOWN CARD`. The current ESP32 firmware does not parse the HTTP response body; its LCD displays the marked message after sending the request, so that display message alone does not prove the server saved a record.
+
+## Important limitations and security
+
+- The current Flask endpoint uses an unauthenticated HTTP GET request. Anyone who can reach the server may attempt to submit UIDs.
+- The server binds to `0.0.0.0`; use a trusted LAN and do not expose port 5000 to the public internet.
+- The current implementation has no duplicate-scan prevention on the server side.
+- The server stores student names, departments, UIDs and attendance timestamps. Protect the workbook and do not commit real attendance records.
+- If credentials were previously committed publicly, rotate them. Replacing them in the current file does not remove old values from Git history.
+
+## Repository files
+
+```text
+ESP32_Attendance/
+├── attendance_in_esp32.ino
+├── attendance_server.py
+└── README.md
+```
+
+The `attendance.xlsx` workbook is generated when the server runs; do not commit real attendance data.
+
+## Author
+
+Hari Prasad L S — [GitHub](https://github.com/lshariprasad)
