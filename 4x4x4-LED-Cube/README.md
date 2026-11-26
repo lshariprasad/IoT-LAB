@@ -157,6 +157,13 @@ IOT/
 
 ---
 
+
+### Upload and startup notes
+
+- The current column mapping uses Arduino Nano pins D0 and D1. These are also the hardware UART RX/TX pins used by the USB-to-serial upload interface on a classic Nano. Disconnect the LED-cube connections from D0/D1 while uploading if they interfere with programming, then reconnect them after upload.
+- The firmware uses active-LOW layer selection through the BC547 layer drivers. Startup code now sets all layer outputs HIGH (inactive) and all column outputs LOW before the animation loop begins.
+- The firmware has not been hardware-tested as part of this documentation/code review. Confirm the transistor pinout, LED polarity, resistor placement and current limits against your actual board before powering the cube.
+
 ## 🎮 All 31 Animations
 
 <div align="center">
@@ -207,8 +214,8 @@ IOT/
 
 ### Step 1 — Clone the Repo
 ```bash
-git clone https://github.com/YourUsername/IOT.git
-cd IOT/4x4x4-LED-Cube
+git clone https://github.com/lshariprasad/IoT-LAB.git
+cd IoT-LAB/4x4x4-LED-Cube
 ```
 
 ### Step 2 — Open in Arduino IDE
@@ -272,7 +279,7 @@ Click the → Upload button  (or Ctrl + U)
 B.E. Electrical & Electronics Engineering
 SIMATS Saveetha School of Engineering, Chennai 🇮🇳
 
-[![GitHub](https://img.shields.io/badge/GitHub-Follow-black?style=for-the-badge&logo=github)](https://github.com/YourUsername)
+[![GitHub](https://img.shields.io/badge/GitHub-Follow-black?style=for-the-badge&logo=github)](https://github.com/lshariprasad)
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-0077B5?style=for-the-badge&logo=linkedin)](https://linkedin.com/in/YourProfile)
 [![LeetCode](https://img.shields.io/badge/LeetCode-120%2B_Problems-FFA116?style=for-the-badge&logo=leetcode&logoColor=black)](https://leetcode.com/YourProfile)
 
