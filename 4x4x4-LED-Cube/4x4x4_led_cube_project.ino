@@ -16,7 +16,6 @@ void setup() {
     digitalWrite(layerPins[i], HIGH);
   }
 
-  randomSeed(analogRead(A6));
 }
 
 void loop() {
