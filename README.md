@@ -123,7 +123,7 @@ The goal is to bridge the gap between **hardware and software integration** usin
 - Arduino IDE
 - Serial Monitor
 - Processing (for Radar display)
-- GitHub Actions (CI/CD with msbuild.yml)
+- GitHub Actions (`.github/workflows/msbuild.yml`) for repository-structure checks only; this workflow does not compile or test firmware.
 
 ### 🔹 Web Integration (Smart Home Project)
 - HTML
@@ -144,6 +144,7 @@ IoT-LAB/
 │   └── ESP32_-_Switching_On_Or_Off/
 ├── ESP32- BATTERY HEALTH/
 ├── ESP32_-_SMART_HEALTH_MON/
+├── ESP8266 GAS/
 ├── ESP32_-_VOICE_COMMAND/
 ├── ESP32_2LEDS/
 ├── ESP32_Attendance/
@@ -188,8 +189,12 @@ git clone https://github.com/lshariprasad/IoT-LAB.git
 ## 3️⃣ Monitor Output
 
 6. Open **Serial Monitor** (`Tools` → `Serial Monitor`)
-7. Set correct baud rate (usually `9600` or `115200`)
-8. Observe LEDs, sensors, motors, or web interface (depending on project)
+7. Set the baud rate specified by the selected sketch (for example, `9600` or `115200`)
+8. Observe LEDs, sensors, motors, or the web interface, depending on the project
+
+**Project-specific setup:** This repository contains independent sketches, not one universal firmware build. Board packages, pin assignments, external libraries, wiring, and serial settings vary by project. Check the selected folder's README and the sketch before connecting or powering hardware. The repository-level GitHub Actions check validates paths and the presence of Arduino sketches; it does not compile them.
+
+**Credential safety:** Do not commit real Wi-Fi passwords, API keys, or other secrets. Keep local credentials in an ignored configuration file and provide a placeholder example for collaborators. If a real credential has already been committed, rotate it; removing it from the latest file does not erase it from Git history.
 
 ---
 
